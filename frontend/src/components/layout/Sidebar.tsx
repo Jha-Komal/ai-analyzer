@@ -4,7 +4,6 @@ import {
   MessageSquareTextIcon,
   LightbulbIcon,
   SparklesIcon,
-  SettingsIcon,
   BrainCircuitIcon,
   MenuIcon,
   XIcon,
@@ -18,7 +17,6 @@ const NAV_ITEMS = [
   { to: ROUTES.REVIEWS, icon: MessageSquareTextIcon, label: 'Reviews' },
   { to: ROUTES.INSIGHTS, icon: LightbulbIcon, label: 'Insights' },
   { to: ROUTES.RECOMMENDATIONS, icon: SparklesIcon, label: 'Recommendations' },
-  { to: ROUTES.SETTINGS, icon: SettingsIcon, label: 'Settings' },
 ];
 
 interface SidebarProps {

@@ -3,5 +3,4 @@ export const ROUTES = {
   REVIEWS: '/reviews',
   INSIGHTS: '/insights',
   RECOMMENDATIONS: '/recommendations',
-  SETTINGS: '/settings',
 } as const;
