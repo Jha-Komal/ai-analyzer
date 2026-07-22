@@ -3,13 +3,16 @@ import { DashboardCache } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface DashboardCacheData {
+  totalCount: number;
   positiveCount: number;
   neutralCount: number;
   negativeCount: number;
+  averageRating: number;
   themeDistribution: Record<string, number>;
   emotionDistribution: Record<string, number>;
   categoryDistribution: Record<string, number>;
   painPointDistribution: Record<string, number>;
+  sourceDistribution: Record<string, number>;
   recommendationSummary?: string;
 }
 
@@ -18,13 +21,16 @@ export class DashboardCacheRepository {
     const existing = await prisma.dashboardCache.findFirst();
 
     const payload = {
+      totalCount: data.totalCount,
       positiveCount: data.positiveCount,
       neutralCount: data.neutralCount,
       negativeCount: data.negativeCount,
+      averageRating: data.averageRating,
       themeDistribution: JSON.stringify(data.themeDistribution),
       emotionDistribution: JSON.stringify(data.emotionDistribution),
       categoryDistribution: JSON.stringify(data.categoryDistribution),
       painPointDistribution: JSON.stringify(data.painPointDistribution),
+      sourceDistribution: JSON.stringify(data.sourceDistribution),
       recommendationSummary: data.recommendationSummary,
     };
 

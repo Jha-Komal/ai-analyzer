@@ -15,13 +15,16 @@ export class DashboardController {
       }
 
       sendSuccess(res, {
+        totalCount: cache.totalCount,
         positiveCount: cache.positiveCount,
         neutralCount: cache.neutralCount,
         negativeCount: cache.negativeCount,
+        averageRating: cache.averageRating,
         themeDistribution: JSON.parse(cache.themeDistribution),
         emotionDistribution: JSON.parse(cache.emotionDistribution),
         categoryDistribution: JSON.parse(cache.categoryDistribution),
         painPointDistribution: JSON.parse(cache.painPointDistribution),
+        sourceDistribution: JSON.parse(cache.sourceDistribution),
         recommendationSummary: cache.recommendationSummary,
         updatedAt: cache.updatedAt,
       });

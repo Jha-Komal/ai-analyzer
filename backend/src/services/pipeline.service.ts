@@ -86,11 +86,22 @@ export class PipelineService {
         }));
 
         try {
+          const validIds = new Set(batchInput.map((r) => r.id));
           const results = await this.aiService.analyzeReviews(batchInput);
+
           for (const { id, result } of results) {
-            const existing = await this.analysisRepo.findByReviewId(id);
-            if (!existing) {
-              await this.analysisRepo.create(id, result);
+            if (!validIds.has(id)) {
+              console.warn(`[Pipeline] Batch ${batchIdx + 1}: AI returned unknown review id "${id}", skipping`);
+              continue;
+            }
+
+            try {
+              const existing = await this.analysisRepo.findByReviewId(id);
+              if (!existing) {
+                await this.analysisRepo.create(id, result);
+              }
+            } catch (err) {
+              console.error(`[Pipeline] Batch ${batchIdx + 1}: failed to save analysis for review ${id}:`, err);
             }
           }
         } catch (err) {

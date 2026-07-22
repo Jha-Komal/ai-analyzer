@@ -93,13 +93,16 @@ export class AggregationService {
 
   toCacheData(stats: AggregationStats & { sourceDistribution: Record<string, number> }): DashboardCacheData {
     return {
+      totalCount: stats.totalCount,
       positiveCount: stats.positiveCount,
       neutralCount: stats.neutralCount,
       negativeCount: stats.negativeCount,
+      averageRating: stats.averageRating,
       themeDistribution: stats.themeFrequency,
       emotionDistribution: stats.emotionFrequency,
       categoryDistribution: stats.sourceDistribution,
       painPointDistribution: stats.painPointFrequency,
+      sourceDistribution: stats.sourceDistribution,
     };
   }
 }

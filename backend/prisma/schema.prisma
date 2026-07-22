@@ -40,13 +40,16 @@ model ReviewAnalysis {
 
 model DashboardCache {
   id                    String   @id @default(uuid())
+  totalCount            Int      @default(0)
   positiveCount         Int
   neutralCount          Int
   negativeCount         Int
+  averageRating         Float    @default(0)
   themeDistribution     String
   emotionDistribution   String
   categoryDistribution  String
   painPointDistribution String
+  sourceDistribution    String   @default("{}")
   recommendationSummary String?
   updatedAt             DateTime @updatedAt
 }
