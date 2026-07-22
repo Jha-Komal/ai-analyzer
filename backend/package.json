@@ -2,11 +2,11 @@
   "name": "ai-analyser-backend",
   "version": "1.0.0",
   "description": "AI Review Intelligence Platform Backend",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push"
   },
