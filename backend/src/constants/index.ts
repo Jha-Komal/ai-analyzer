@@ -1,6 +1,6 @@
 import path from 'path';
 
-export const DATA_DIR = path.join(__dirname, '..', '..', 'data');
+export const DATA_DIR = path.join(process.cwd(), 'data');
 
 export const CSV_SOURCE_MAP: Record<string, string> = {
   'redditReviews.csv': 'reddit',
