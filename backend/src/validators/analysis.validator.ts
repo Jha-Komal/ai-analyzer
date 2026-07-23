@@ -1,15 +1,21 @@
 import { z } from 'zod';
 
+const nullableStringArray = z
+  .array(z.string())
+  .nullable()
+  .optional()
+  .transform((v) => v ?? []);
+
 export const AnalysisResultSchema = z.object({
   id: z.string(),
   sentiment: z.enum(['positive', 'neutral', 'negative']),
   emotion: z.string().min(1),
-  themes: z.array(z.string()),
-  painPoints: z.array(z.string()),
+  themes: nullableStringArray,
+  painPoints: nullableStringArray,
   shoppingHabit: z.string().nullable().optional(),
   barrier: z.string().nullable().optional(),
   experimentLikelihood: z.enum(['high', 'medium', 'low']).nullable().optional(),
-  featureRequests: z.array(z.string()),
+  featureRequests: nullableStringArray,
   summary: z.string().min(1),
   confidence: z.number().min(0).max(1),
 });

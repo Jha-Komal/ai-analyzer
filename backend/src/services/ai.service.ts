@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { AIProvider } from '../lib/ai-provider.interface';
 import { createAIProvider } from '../lib/ai-provider.factory';
 import { buildReviewAnalysisPrompt } from '../../prompts/review-analysis.prompt';
@@ -7,7 +8,7 @@ import {
   InsightPromptReviewAnalysis,
 } from '../../prompts/insight-generation.prompt';
 import { buildRecommendationPrompt } from '../../prompts/recommendation.prompt';
-import { AnalysisResultArraySchema } from '../validators/analysis.validator';
+import { AnalysisResultSchema } from '../validators/analysis.validator';
 import { InsightGenerationResponseSchema } from '../validators/insight.validator';
 import { RecommendationArraySchema } from '../validators/recommendation.validator';
 import { AnalysisResult, AggregationStats } from '../types';
@@ -46,7 +47,19 @@ export class AIService {
       throw new Error('Failed to parse AI response after retry');
     }
 
-    const validated = AnalysisResultArraySchema.parse(parsed);
+    if (!Array.isArray(parsed)) {
+      throw new Error('AI response is not an array');
+    }
+
+    const validated: z.infer<typeof AnalysisResultSchema>[] = [];
+    for (const item of parsed) {
+      const result = AnalysisResultSchema.safeParse(item);
+      if (result.success) {
+        validated.push(result.data);
+      } else {
+        console.warn('[AIService] Skipping malformed analysis item:', result.error.message);
+      }
+    }
 
     return validated.map((v) => ({
       id: v.id,

@@ -1,10 +1,16 @@
 import { z } from 'zod';
 
+const nullableStringArray = z
+  .array(z.string())
+  .nullable()
+  .optional()
+  .transform((v) => v ?? []);
+
 export const InsightSchema = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),
   confidence: z.number().min(0).max(1),
-  supportingReviewIds: z.array(z.string()),
+  supportingReviewIds: nullableStringArray,
 });
 
 export const InsightArraySchema = z.array(InsightSchema);
@@ -17,11 +23,17 @@ const KeyFindingSchema = z.object({
   explanation: z.string().min(1),
 });
 
+const nullableKeyFindingArray = z
+  .array(KeyFindingSchema)
+  .nullable()
+  .optional()
+  .transform((v) => v ?? []);
+
 const QuestionInsightSchema = z.object({
   question: z.string().min(1),
   direct_answer: z.string().min(1),
-  key_findings: z.array(KeyFindingSchema),
-  supporting_review_ids: z.array(z.string()),
+  key_findings: nullableKeyFindingArray,
+  supporting_review_ids: nullableStringArray,
   confidence_score: z.number().min(0).max(1),
 });
 
