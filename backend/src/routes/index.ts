@@ -56,6 +56,7 @@ export function createRouter(): Router {
   // Routes
   router.get('/load-reviews', pipelineController.loadReviews);
   router.post('/analyze', pipelineController.analyze);
+  router.post('/reset-analysis', pipelineController.resetAnalysis);
   router.get('/dashboard', dashboardController.getDashboard);
   router.get('/insights', insightController.getInsights);
   router.get('/recommendations', recommendationController.getRecommendations);

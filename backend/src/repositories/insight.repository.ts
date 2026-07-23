@@ -30,4 +30,8 @@ export class InsightRepository {
       orderBy: { createdAt: 'asc' },
     });
   }
+
+  async deleteAll(): Promise<void> {
+    await prisma.insight.deleteMany();
+  }
 }

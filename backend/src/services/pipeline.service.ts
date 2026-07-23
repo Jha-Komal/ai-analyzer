@@ -52,6 +52,14 @@ export class PipelineService {
     return { loaded, skipped };
   }
 
+  async resetAnalysis(): Promise<void> {
+    await this.analysisRepo.deleteAll();
+    await this.insightRepo.deleteAll();
+    await this.recommendationRepo.deleteAll();
+    await this.dashboardRepo.deleteAll();
+    statusService.setStatus('idle', undefined, 'Analysis reset. Ready to re-analyze from scratch.');
+  }
+
   async runFullPipeline(): Promise<void> {
     try {
       // Step 1: Load & clean

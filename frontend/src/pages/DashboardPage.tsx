@@ -7,6 +7,7 @@ import {
   StarIcon,
   RefreshCwIcon,
   ZapIcon,
+  RotateCcwIcon,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { MetricCard } from '../components/shared/MetricCard';
@@ -22,16 +23,19 @@ import { EmotionBarChart } from '../components/charts/EmotionBarChart';
 import { CategoryBarChart } from '../components/charts/CategoryBarChart';
 import { useDashboard } from '../hooks/useDashboard';
 import { useStatus } from '../hooks/useStatus';
-import { useLoadReviews, useAnalyzeReviews } from '../hooks/useReviews';
+import { useLoadReviews, useAnalyzeReviews, useResetAnalysis } from '../hooks/useReviews';
+import { isBetaEnabled } from '../lib/betaFlag';
 
 export function DashboardPage() {
   const { data: dashboard, isLoading: dashLoading, error: dashError, refetch } = useDashboard();
   const { data: statusData } = useStatus();
   const loadReviews = useLoadReviews();
   const analyzeReviews = useAnalyzeReviews();
+  const resetAnalysis = useResetAnalysis();
 
   const status = statusData?.status ?? 'idle';
   const isPipelineRunning = status !== 'idle' && status !== 'completed';
+  const betaEnabled = isBetaEnabled();
 
   async function handleLoadReviews() {
     await loadReviews.mutateAsync();
@@ -39,6 +43,14 @@ export function DashboardPage() {
 
   async function handleAnalyze() {
     await analyzeReviews.mutateAsync();
+  }
+
+  async function handleResetAnalysis() {
+    const confirmed = window.confirm(
+      'This permanently deletes all analysis, insights, and recommendations so every review can be re-analyzed from scratch. Continue?'
+    );
+    if (!confirmed) return;
+    await resetAnalysis.mutateAsync();
   }
 
   return (
@@ -82,6 +94,25 @@ export function DashboardPage() {
               </>
             )}
           </Button>
+          {betaEnabled && (
+            <Button
+              variant="outline"
+              onClick={handleResetAnalysis}
+              disabled={resetAnalysis.isPending || isPipelineRunning}
+            >
+              {resetAnalysis.isPending ? (
+                <>
+                  <RotateCcwIcon className="h-4 w-4 animate-spin" />
+                  Resetting…
+                </>
+              ) : (
+                <>
+                  <RotateCcwIcon className="h-4 w-4" />
+                  Reset Analysis (Beta)
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 

@@ -54,4 +54,8 @@ export class DashboardCacheRepository {
       orderBy: { updatedAt: 'desc' },
     });
   }
+
+  async deleteAll(): Promise<void> {
+    await prisma.dashboardCache.deleteMany();
+  }
 }

@@ -27,4 +27,13 @@ export class PipelineController {
       console.error('[Pipeline] Fatal error:', err);
     });
   };
+
+  resetAnalysis = async (_req: Request, res: Response): Promise<void> => {
+    try {
+      await this.pipelineService.resetAnalysis();
+      sendSuccess(res, null, 'Analysis reset. All reviews will be re-analyzed on the next run.');
+    } catch (err) {
+      sendError(res, String(err), HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+  };
 }

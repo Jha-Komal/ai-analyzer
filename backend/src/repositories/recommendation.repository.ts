@@ -35,4 +35,8 @@ export class RecommendationRepository {
       orderBy: { createdAt: 'asc' },
     });
   }
+
+  async deleteAll(): Promise<void> {
+    await prisma.recommendation.deleteMany();
+  }
 }

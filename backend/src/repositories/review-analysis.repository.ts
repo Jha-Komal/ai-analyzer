@@ -33,6 +33,10 @@ export class ReviewAnalysisRepository {
     return prisma.reviewAnalysis.findMany();
   }
 
+  async deleteAll(): Promise<void> {
+    await prisma.reviewAnalysis.deleteMany();
+  }
+
   async countBySentiment(): Promise<{ positive: number; neutral: number; negative: number }> {
     const [positive, neutral, negative] = await Promise.all([
       prisma.reviewAnalysis.count({ where: { sentiment: 'positive' } }),

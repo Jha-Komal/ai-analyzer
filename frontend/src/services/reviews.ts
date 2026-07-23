@@ -49,3 +49,11 @@ export async function analyzeReviews(): Promise<{ message: string }> {
   }
   return response.data.data ?? { message: 'Analysis started' };
 }
+
+export async function resetAnalysis(): Promise<{ message: string }> {
+  const response = await api.post<ApiResponse<null>>('/api/reset-analysis');
+  if (!response.data.success) {
+    throw new Error(response.data.error ?? 'Failed to reset analysis');
+  }
+  return { message: response.data.message ?? 'Analysis reset' };
+}
