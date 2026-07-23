@@ -118,16 +118,28 @@ export class PipelineService {
 
       // Step 4: Generate insights
       statusService.setStatus('generating_insights', 80, 'Generating insights');
-      const representativeReviews = allReviews
-        .filter((r) => r.analysis !== null)
-        .slice(0, 20)
-        .map((r) => ({
-          id: r.id,
-          review: r.review,
-          sentiment: r.analysis!.sentiment,
-        }));
+      const analyzedSample = allReviews.filter((r) => r.analysis !== null).slice(0, 20);
 
-      const insights = await this.aiService.generateInsights(stats, representativeReviews);
+      const reviews = analyzedSample.map((r) => ({
+        id: r.id,
+        review: r.review,
+      }));
+
+      const reviewAnalysis = analyzedSample.map((r) => ({
+        reviewId: r.id,
+        sentiment: r.analysis!.sentiment,
+        emotion: r.analysis!.emotion,
+        themes: JSON.parse(r.analysis!.themes) as string[],
+        painPoints: JSON.parse(r.analysis!.painPoints) as string[],
+        shoppingHabit: r.analysis!.shoppingHabit ?? undefined,
+        barrier: r.analysis!.barrier ?? undefined,
+        experimentLikelihood: r.analysis!.experimentLikelihood ?? undefined,
+        featureRequests: JSON.parse(r.analysis!.featureRequests) as string[],
+        summary: r.analysis!.summary,
+        confidence: r.analysis!.confidence,
+      }));
+
+      const insights = await this.aiService.generateInsights(stats, reviews, reviewAnalysis);
       await this.insightRepo.createMany(insights);
 
       // Step 5: Generate recommendations
