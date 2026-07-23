@@ -1,10 +1,14 @@
 import { AIProvider } from '../lib/ai-provider.interface';
 import { createAIProvider } from '../lib/ai-provider.factory';
 import { buildReviewAnalysisPrompt } from '../../prompts/review-analysis.prompt';
-import { buildInsightGenerationPrompt } from '../../prompts/insight-generation.prompt';
+import {
+  buildInsightGenerationPrompt,
+  InsightPromptReview,
+  InsightPromptReviewAnalysis,
+} from '../../prompts/insight-generation.prompt';
 import { buildRecommendationPrompt } from '../../prompts/recommendation.prompt';
 import { AnalysisResultArraySchema } from '../validators/analysis.validator';
-import { InsightArraySchema } from '../validators/insight.validator';
+import { InsightGenerationResponseSchema } from '../validators/insight.validator';
 import { RecommendationArraySchema } from '../validators/recommendation.validator';
 import { AnalysisResult, AggregationStats } from '../types';
 import { INSIGHT_QUESTIONS } from '../constants';
@@ -63,7 +67,8 @@ export class AIService {
 
   async generateInsights(
     stats: AggregationStats,
-    representativeReviews: Array<{ id: string; review: string; sentiment: string }>
+    reviews: InsightPromptReview[],
+    reviewAnalysis: InsightPromptReviewAnalysis[]
   ): Promise<
     Array<{
       question: string;
@@ -72,7 +77,7 @@ export class AIService {
       supportingReviewIds: string[];
     }>
   > {
-    const prompt = buildInsightGenerationPrompt(stats, representativeReviews, INSIGHT_QUESTIONS);
+    const prompt = buildInsightGenerationPrompt(stats, reviews, reviewAnalysis, INSIGHT_QUESTIONS);
 
     let raw: string;
     try {
@@ -81,18 +86,31 @@ export class AIService {
       throw new Error(`AI provider error during insight generation: ${String(err)}`);
     }
 
-    let parsed = parseJsonSafe<unknown[]>(raw);
+    let parsed = parseJsonSafe<unknown>(raw);
     if (!parsed) {
       raw = await this.provider.complete(prompt);
-      parsed = parseJsonSafe<unknown[]>(raw);
+      parsed = parseJsonSafe<unknown>(raw);
     }
 
     if (!parsed) {
       throw new Error('Failed to parse insight response after retry');
     }
 
-    const validated = InsightArraySchema.parse(parsed);
-    return validated;
+    const validated = InsightGenerationResponseSchema.parse(parsed);
+
+    return validated.question_insights.map((qi) => {
+      const findingLines = [...qi.key_findings]
+        .sort((a, b) => a.rank - b.rank)
+        .map((f) => `• ${f.finding}: ${f.explanation}`)
+        .join('\n');
+
+      return {
+        question: qi.question,
+        answer: findingLines ? `${qi.direct_answer}\n\n${findingLines}` : qi.direct_answer,
+        confidence: qi.confidence_score,
+        supportingReviewIds: [...new Set(qi.supporting_review_ids)],
+      };
+    });
   }
 
   async generateRecommendations(
