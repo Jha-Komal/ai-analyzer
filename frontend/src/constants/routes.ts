@@ -3,4 +3,5 @@ export const ROUTES = {
   REVIEWS: '/reviews',
   INSIGHTS: '/insights',
   RECOMMENDATIONS: '/recommendations',
+  WORKFLOW: '/workflow',
 } as const;

@@ -7,6 +7,7 @@ const PAGE_TITLES: Record<string, string> = {
   [ROUTES.REVIEWS]: 'Reviews',
   [ROUTES.INSIGHTS]: 'Insights',
   [ROUTES.RECOMMENDATIONS]: 'Recommendations',
+  [ROUTES.WORKFLOW]: 'How It Works',
 };
 
 interface TopNavProps {

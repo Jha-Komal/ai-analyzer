@@ -7,6 +7,7 @@ import {
   BrainCircuitIcon,
   MenuIcon,
   XIcon,
+  NetworkIcon,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../lib/utils';
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { to: ROUTES.REVIEWS, icon: MessageSquareTextIcon, label: 'Reviews' },
   { to: ROUTES.INSIGHTS, icon: LightbulbIcon, label: 'Insights' },
   { to: ROUTES.RECOMMENDATIONS, icon: SparklesIcon, label: 'Recommendations' },
+  { to: ROUTES.WORKFLOW, icon: NetworkIcon, label: 'How It Works' },
 ];
 
 interface SidebarProps {
