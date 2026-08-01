@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import {
   MessageSquareIcon,
   SmileIcon,
   MinusCircleIcon,
   FrownIcon,
   StarIcon,
-  RefreshCwIcon,
   ZapIcon,
   RotateCcwIcon,
 } from 'lucide-react';
@@ -26,13 +24,12 @@ import { ShoppingHabitChart } from '../components/charts/ShoppingHabitChart';
 import { BarrierChart } from '../components/charts/BarrierChart';
 import { useDashboard } from '../hooks/useDashboard';
 import { useStatus } from '../hooks/useStatus';
-import { useLoadReviews, useAnalyzeReviews, useResetAnalysis } from '../hooks/useReviews';
+import { useAnalyzeReviews, useResetAnalysis } from '../hooks/useReviews';
 import { isBetaEnabled } from '../lib/betaFlag';
 
 export function DashboardPage() {
   const { data: dashboard, isLoading: dashLoading, error: dashError, refetch } = useDashboard();
   const { data: statusData } = useStatus();
-  const loadReviews = useLoadReviews();
   const analyzeReviews = useAnalyzeReviews();
   const resetAnalysis = useResetAnalysis();
 
@@ -40,10 +37,6 @@ export function DashboardPage() {
   const isPipelineRunning = status !== 'idle' && status !== 'completed' && status !== 'error';
   const hasPipelineError = status === 'error';
   const betaEnabled = isBetaEnabled();
-
-  async function handleLoadReviews() {
-    await loadReviews.mutateAsync();
-  }
 
   async function handleAnalyze() {
     await analyzeReviews.mutateAsync();
@@ -65,23 +58,6 @@ export function DashboardPage() {
           Manage and analyze your customer reviews
         </p>
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={handleLoadReviews}
-            disabled={loadReviews.isPending || isPipelineRunning}
-          >
-            {loadReviews.isPending ? (
-              <>
-                <RefreshCwIcon className="h-4 w-4 animate-spin" />
-                Loading…
-              </>
-            ) : (
-              <>
-                <RefreshCwIcon className="h-4 w-4" />
-                Load Reviews
-              </>
-            )}
-          </Button>
           <Button
             onClick={handleAnalyze}
             disabled={analyzeReviews.isPending || isPipelineRunning}
