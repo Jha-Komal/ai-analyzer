@@ -115,8 +115,8 @@ export function WorkflowPage() {
     <div className="max-w-4xl mx-auto space-y-8 pb-8">
       {/* Header */}
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold text-foreground">How It Works</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-3xl font-bold text-foreground">How It Works</h2>
+        <p className="text-base text-muted-foreground">
           A five-stage pipeline that turns raw user reviews into evidence-backed product insights.
         </p>
       </div>
@@ -131,7 +131,7 @@ export function WorkflowPage() {
                 <div className="flex items-start gap-4">
                   {/* Step number + icon */}
                   <div className="flex flex-col items-center gap-1 shrink-0 w-10">
-                    <span className="text-xs font-bold text-muted-foreground/60 tracking-widest">{s.step}</span>
+                    <span className="text-sm font-bold text-muted-foreground/60 tracking-widest">{s.step}</span>
                     <div className={`rounded-lg p-2 border ${s.bg}`}>
                       <Icon className={`h-4 w-4 ${s.color}`} />
                     </div>
@@ -140,15 +140,15 @@ export function WorkflowPage() {
                   {/* Content */}
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <h3 className="text-base font-semibold text-foreground">{s.title}</h3>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${s.bg} ${s.color}`}>
+                      <h3 className="text-lg font-semibold text-foreground">{s.title}</h3>
+                      <span className={`text-sm font-semibold px-2 py-0.5 rounded-full border ${s.bg} ${s.color}`}>
                         {s.badge}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{s.description}</p>
+                    <p className="text-base text-muted-foreground leading-relaxed">{s.description}</p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 pt-1">
                       {s.details.map((d, j) => (
-                        <li key={j} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                        <li key={j} className="flex items-start gap-1.5 text-sm text-muted-foreground">
                           <CheckCircleIcon className={`h-3 w-3 mt-0.5 shrink-0 ${s.color}`} />
                           {d}
                         </li>
@@ -170,14 +170,14 @@ export function WorkflowPage() {
 
       {/* Insight validation */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-        <h3 className="text-base font-semibold text-foreground">How Insight Quality Is Validated</h3>
+        <h3 className="text-lg font-semibold text-foreground">How Insight Quality Is Validated</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {VALIDATION.map((v, i) => (
             <div key={i} className="flex items-start gap-3 rounded-lg bg-muted/40 border border-border/50 p-3">
               <CheckCircleIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">{v.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{v.desc}</p>
+                <p className="text-base font-medium text-foreground">{v.label}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{v.desc}</p>
               </div>
             </div>
           ))}
@@ -186,10 +186,10 @@ export function WorkflowPage() {
 
       {/* Tech stack */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-        <h3 className="text-base font-semibold text-foreground">Tech Stack</h3>
+        <h3 className="text-lg font-semibold text-foreground">Tech Stack</h3>
         <div className="flex flex-wrap gap-2">
           {['OpenAI API', 'Node.js + Express', 'Prisma + SQLite', 'React + Vite', 'TailwindCSS', 'Recharts', 'Zod'].map((t) => (
-            <span key={t} className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted border border-border text-muted-foreground">
+            <span key={t} className="text-sm font-medium px-2.5 py-1 rounded-full bg-muted border border-border text-muted-foreground">
               {t}
             </span>
           ))}

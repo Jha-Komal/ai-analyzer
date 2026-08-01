@@ -35,12 +35,12 @@ export class AIService {
     }
 
     // Parse and validate
-    let parsed = parseJsonSafe<unknown[]>(raw);
+    let parsed = parseJsonSafe<unknown>(raw);
     if (!parsed) {
       // Retry once
       console.warn('[AIService] Failed to parse response, retrying...');
       raw = await this.provider.complete(prompt);
-      parsed = parseJsonSafe<unknown[]>(raw);
+      parsed = parseJsonSafe<unknown>(raw);
     }
 
     if (!parsed) {
