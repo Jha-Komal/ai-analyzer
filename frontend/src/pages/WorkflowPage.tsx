@@ -26,7 +26,7 @@ const STEPS = [
     step: '02',
     title: 'AI-Powered Per-Review Analysis',
     description:
-      'Every review is passed through GPT-4o-mini in batches of 10. The model extracts 11 structured dimensions from each review, producing a rich per-review data object saved to a local SQLite database.',
+      'Every review is analysed using the OpenAI API. The model extracts 11 structured dimensions from each review, producing a rich per-review data object saved to a local SQLite database.',
     details: [
       'Sentiment — positive / neutral / negative',
       'Emotion — frustrated, happy, confused…',
@@ -71,7 +71,7 @@ const STEPS = [
     step: '04',
     title: 'Evidence-Based Insight Generation',
     description:
-      'Aggregated stats and a representative sample of 20 reviews are passed to GPT-4o-mini to answer 8 fixed research questions. The prompt enforces evidence-only answers — no invented reasoning. Questions are batched in pairs to stay within token limits.',
+      'Aggregated stats and a representative sample of reviews are passed to the OpenAI API to answer 8 fixed research questions. The prompt enforces evidence-only answers — no invented reasoning.',
     details: [
       'Why do users buy from the same categories repeatedly?',
       'What prevents exploration of new categories?',
@@ -188,7 +188,7 @@ export function WorkflowPage() {
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
         <h3 className="text-sm font-bold text-foreground">Tech Stack</h3>
         <div className="flex flex-wrap gap-2">
-          {['GPT-4o-mini', 'Node.js + Express', 'Prisma + SQLite', 'React + Vite', 'TailwindCSS', 'Recharts', 'Zod', 'OpenAI SDK'].map((t) => (
+          {['OpenAI API', 'Node.js + Express', 'Prisma + SQLite', 'React + Vite', 'TailwindCSS', 'Recharts', 'Zod', 'OpenAI SDK'].map((t) => (
             <span key={t} className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted border border-border text-muted-foreground">
               {t}
             </span>
