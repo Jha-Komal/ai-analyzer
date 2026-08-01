@@ -19,14 +19,16 @@ export function TopNav({ onMenuClick }: TopNavProps) {
   const { pathname } = useLocation();
   const title = PAGE_TITLES[pathname] ?? 'Dashboard';
   const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark')
+    localStorage.getItem('theme') !== 'light'
   );
 
   useEffect(() => {
     if (dark) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [dark]);
 

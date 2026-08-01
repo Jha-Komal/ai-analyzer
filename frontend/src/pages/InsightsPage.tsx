@@ -80,28 +80,6 @@ export function InsightsPage() {
                 {insight.answer}
               </p>
               <ConfidenceBar value={insight.confidence} />
-              {insight.supportingReviewIds && insight.supportingReviewIds.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                    Supporting reviews ({insight.supportingReviewIds.length})
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {insight.supportingReviewIds.slice(0, 8).map((id) => (
-                      <span
-                        key={id}
-                        className="inline-flex items-center rounded-sm bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground"
-                      >
-                        {id.slice(0, 8)}…
-                      </span>
-                    ))}
-                    {insight.supportingReviewIds.length > 8 && (
-                      <span className="text-xs text-muted-foreground">
-                        +{insight.supportingReviewIds.length - 8} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         ))}
