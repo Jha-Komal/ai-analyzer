@@ -5,7 +5,7 @@ const STEPS = [
     icon: DatabaseIcon,
     color: 'text-sky-400',
     bg: 'bg-sky-400/10 border-sky-400/20',
-    glow: 'shadow-[0_0_20px_rgba(56,189,248,0.08)]',
+    glow: 'shadow-[0_0_20px_rgba(56,189,248,0.08)] hover:shadow-[0_0_35px_rgba(56,189,248,0.30)]',
     step: '01',
     title: 'Multi-Source Data Collection',
     description:
@@ -22,7 +22,7 @@ const STEPS = [
     icon: BrainCircuitIcon,
     color: 'text-violet-400',
     bg: 'bg-violet-400/10 border-violet-400/20',
-    glow: 'shadow-[0_0_20px_rgba(167,139,250,0.08)]',
+    glow: 'shadow-[0_0_20px_rgba(167,139,250,0.08)] hover:shadow-[0_0_35px_rgba(167,139,250,0.30)]',
     step: '02',
     title: 'AI-Powered Review Analysis',
     description:
@@ -46,7 +46,7 @@ const STEPS = [
     icon: BarChart2Icon,
     color: 'text-emerald-400',
     bg: 'bg-emerald-400/10 border-emerald-400/20',
-    glow: 'shadow-[0_0_20px_rgba(52,211,153,0.08)]',
+    glow: 'shadow-[0_0_20px_rgba(52,211,153,0.08)] hover:shadow-[0_0_35px_rgba(52,211,153,0.30)]',
     step: '03',
     title: 'Statistical Aggregation',
     description:
@@ -67,7 +67,7 @@ const STEPS = [
     icon: LightbulbIcon,
     color: 'text-amber-400',
     bg: 'bg-amber-400/10 border-amber-400/20',
-    glow: 'shadow-[0_0_20px_rgba(251,191,36,0.08)]',
+    glow: 'shadow-[0_0_20px_rgba(251,191,36,0.08)] hover:shadow-[0_0_35px_rgba(251,191,36,0.30)]',
     step: '04',
     title: 'Evidence-Based Insight Generation',
     description:
@@ -88,7 +88,7 @@ const STEPS = [
     icon: SparklesIcon,
     color: 'text-rose-400',
     bg: 'bg-rose-400/10 border-rose-400/20',
-    glow: 'shadow-[0_0_20px_rgba(251,113,133,0.08)]',
+    glow: 'shadow-[0_0_20px_rgba(251,113,133,0.08)] hover:shadow-[0_0_35px_rgba(251,113,133,0.30)]',
     step: '05',
     title: 'Priority-Tiered Recommendations',
     description:
@@ -127,7 +127,7 @@ export function WorkflowPage() {
           const Icon = s.icon;
           return (
             <div key={i} className="space-y-2">
-              <div className={`rounded-xl border p-5 ${s.bg} ${s.glow} transition-all`}>
+              <div className={`rounded-xl border p-5 ${s.bg} ${s.glow} transition-shadow duration-300`}>
                 <div className="flex items-start gap-4">
                   {/* Step number + icon */}
                   <div className="flex flex-col items-center gap-1 shrink-0 w-10">
