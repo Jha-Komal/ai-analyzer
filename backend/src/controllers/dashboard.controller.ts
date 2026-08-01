@@ -25,6 +25,8 @@ export class DashboardController {
         categoryDistribution: JSON.parse(cache.categoryDistribution),
         painPointDistribution: JSON.parse(cache.painPointDistribution),
         sourceDistribution: JSON.parse(cache.sourceDistribution),
+        shoppingHabitDistribution: JSON.parse(cache.shoppingHabitDistribution),
+        barrierDistribution: JSON.parse(cache.barrierDistribution),
         recommendationSummary: cache.recommendationSummary,
         updatedAt: cache.updatedAt,
       });

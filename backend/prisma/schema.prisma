@@ -49,8 +49,10 @@ model DashboardCache {
   emotionDistribution   String
   categoryDistribution  String
   painPointDistribution String
-  sourceDistribution    String   @default("{}")
-  recommendationSummary String?
+  sourceDistribution         String   @default("{}")
+  shoppingHabitDistribution  String   @default("{}")
+  barrierDistribution        String   @default("{}")
+  recommendationSummary      String?
   updatedAt             DateTime @updatedAt
 }
 

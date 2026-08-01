@@ -103,6 +103,8 @@ export class AggregationService {
       categoryDistribution: stats.sourceDistribution,
       painPointDistribution: stats.painPointFrequency,
       sourceDistribution: stats.sourceDistribution,
+      shoppingHabitDistribution: stats.shoppingHabitDistribution,
+      barrierDistribution: stats.barrierDistribution,
     };
   }
 }

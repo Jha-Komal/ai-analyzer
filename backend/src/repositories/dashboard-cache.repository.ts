@@ -13,6 +13,8 @@ export interface DashboardCacheData {
   categoryDistribution: Record<string, number>;
   painPointDistribution: Record<string, number>;
   sourceDistribution: Record<string, number>;
+  shoppingHabitDistribution: Record<string, number>;
+  barrierDistribution: Record<string, number>;
   recommendationSummary?: string;
 }
 
@@ -31,6 +33,8 @@ export class DashboardCacheRepository {
       categoryDistribution: JSON.stringify(data.categoryDistribution),
       painPointDistribution: JSON.stringify(data.painPointDistribution),
       sourceDistribution: JSON.stringify(data.sourceDistribution),
+      shoppingHabitDistribution: JSON.stringify(data.shoppingHabitDistribution),
+      barrierDistribution: JSON.stringify(data.barrierDistribution),
       recommendationSummary: data.recommendationSummary,
     };
 

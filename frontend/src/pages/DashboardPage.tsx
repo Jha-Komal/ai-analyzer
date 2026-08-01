@@ -20,7 +20,8 @@ import { SourcePieChart } from '../components/charts/SourcePieChart';
 import { ThemeBarChart } from '../components/charts/ThemeBarChart';
 import { PainPointBarChart } from '../components/charts/PainPointBarChart';
 import { EmotionBarChart } from '../components/charts/EmotionBarChart';
-import { CategoryBarChart } from '../components/charts/CategoryBarChart';
+import { ShoppingHabitChart } from '../components/charts/ShoppingHabitChart';
+import { BarrierChart } from '../components/charts/BarrierChart';
 import { useDashboard } from '../hooks/useDashboard';
 import { useStatus } from '../hooks/useStatus';
 import { useLoadReviews, useAnalyzeReviews, useResetAnalysis } from '../hooks/useReviews';
@@ -185,17 +186,20 @@ export function DashboardPage() {
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <SentimentPieChart data={dashboard} />
             <SourcePieChart data={dashboard} />
+            {Object.keys(dashboard.emotionDistribution ?? {}).length > 0 && (
+              <EmotionBarChart distribution={dashboard.emotionDistribution} />
+            )}
             {Object.keys(dashboard.themeDistribution ?? {}).length > 0 && (
               <ThemeBarChart distribution={dashboard.themeDistribution} />
             )}
             {Object.keys(dashboard.painPointDistribution ?? {}).length > 0 && (
               <PainPointBarChart distribution={dashboard.painPointDistribution} />
             )}
-            {Object.keys(dashboard.emotionDistribution ?? {}).length > 0 && (
-              <EmotionBarChart distribution={dashboard.emotionDistribution} />
+            {Object.keys(dashboard.shoppingHabitDistribution ?? {}).length > 0 && (
+              <ShoppingHabitChart distribution={dashboard.shoppingHabitDistribution!} />
             )}
-            {Object.keys(dashboard.categoryDistribution ?? {}).length > 0 && (
-              <CategoryBarChart distribution={dashboard.categoryDistribution} />
+            {Object.keys(dashboard.barrierDistribution ?? {}).length > 0 && (
+              <BarrierChart distribution={dashboard.barrierDistribution!} />
             )}
           </div>
         </>

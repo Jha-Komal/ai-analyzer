@@ -9,4 +9,6 @@ export interface DashboardData {
   categoryDistribution: Record<string, number>;
   painPointDistribution: Record<string, number>;
   sourceDistribution?: Record<string, number>;
+  shoppingHabitDistribution?: Record<string, number>;
+  barrierDistribution?: Record<string, number>;
 }
