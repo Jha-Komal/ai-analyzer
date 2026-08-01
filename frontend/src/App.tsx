@@ -5,6 +5,7 @@ import { ReviewsPage } from './pages/ReviewsPage';
 import { InsightsPage } from './pages/InsightsPage';
 import { RecommendationsPage } from './pages/RecommendationsPage';
 import { WorkflowPage } from './pages/WorkflowPage';
+import { MvpPage } from './pages/MvpPage';
 import { ROUTES } from './constants/routes';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path={ROUTES.INSIGHTS} element={<InsightsPage />} />
         <Route path={ROUTES.RECOMMENDATIONS} element={<RecommendationsPage />} />
         <Route path={ROUTES.WORKFLOW} element={<WorkflowPage />} />
+        <Route path={ROUTES.MVP} element={<MvpPage />} />
         <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
       </Route>
     </Routes>

@@ -4,4 +4,5 @@ export const ROUTES = {
   INSIGHTS: '/insights',
   RECOMMENDATIONS: '/recommendations',
   WORKFLOW: '/workflow',
+  MVP: '/mvp',
 } as const;
