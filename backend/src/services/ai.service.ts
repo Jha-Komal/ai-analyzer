@@ -91,40 +91,62 @@ export class AIService {
       supportingReviewIds: string[];
     }>
   > {
-    const prompt = buildInsightGenerationPrompt(stats, reviews, reviewAnalysis, INSIGHT_QUESTIONS);
+    const QUESTIONS_PER_BATCH = 2;
+    const allInsights: Array<{ question: string; answer: string; confidence: number; supportingReviewIds: string[] }> = [];
 
-    let raw: string;
-    try {
-      raw = await this.provider.complete(prompt);
-    } catch (err) {
-      throw new Error(`AI provider error during insight generation: ${String(err)}`);
+    for (let i = 0; i < INSIGHT_QUESTIONS.length; i += QUESTIONS_PER_BATCH) {
+      const batchQuestions = INSIGHT_QUESTIONS.slice(i, i + QUESTIONS_PER_BATCH);
+      const batchNum = Math.floor(i / QUESTIONS_PER_BATCH) + 1;
+      const prompt = buildInsightGenerationPrompt(stats, reviews, reviewAnalysis, batchQuestions);
+
+      let raw: string | null = null;
+      try {
+        raw = await this.provider.complete(prompt);
+      } catch (err) {
+        console.warn(`[AIService] Insight batch ${batchNum} provider error:`, err);
+        continue;
+      }
+
+      let parsed = parseJsonSafe<unknown>(raw);
+      if (!parsed) {
+        try {
+          raw = await this.provider.complete(prompt);
+          parsed = parseJsonSafe<unknown>(raw);
+        } catch {
+          // ignore retry error
+        }
+      }
+
+      if (!parsed) {
+        console.warn(`[AIService] Insight batch ${batchNum} failed to parse, skipping`);
+        continue;
+      }
+
+      try {
+        const validated = InsightGenerationResponseSchema.parse(parsed);
+        for (const qi of validated.question_insights) {
+          const findingLines = [...qi.key_findings]
+            .sort((a, b) => a.rank - b.rank)
+            .map((f) => `• ${f.finding}: ${f.explanation}`)
+            .join('\n');
+
+          allInsights.push({
+            question: qi.question,
+            answer: findingLines ? `${qi.direct_answer}\n\n${findingLines}` : qi.direct_answer,
+            confidence: qi.confidence_score,
+            supportingReviewIds: [...new Set(qi.supporting_review_ids)],
+          });
+        }
+      } catch (err) {
+        console.warn(`[AIService] Insight batch ${batchNum} validation failed:`, err);
+      }
     }
 
-    let parsed = parseJsonSafe<unknown>(raw);
-    if (!parsed) {
-      raw = await this.provider.complete(prompt);
-      parsed = parseJsonSafe<unknown>(raw);
+    if (allInsights.length === 0) {
+      throw new Error('All insight batches failed to generate');
     }
 
-    if (!parsed) {
-      throw new Error('Failed to parse insight response after retry');
-    }
-
-    const validated = InsightGenerationResponseSchema.parse(parsed);
-
-    return validated.question_insights.map((qi) => {
-      const findingLines = [...qi.key_findings]
-        .sort((a, b) => a.rank - b.rank)
-        .map((f) => `• ${f.finding}: ${f.explanation}`)
-        .join('\n');
-
-      return {
-        question: qi.question,
-        answer: findingLines ? `${qi.direct_answer}\n\n${findingLines}` : qi.direct_answer,
-        confidence: qi.confidence_score,
-        supportingReviewIds: [...new Set(qi.supporting_review_ids)],
-      };
-    });
+    return allInsights;
   }
 
   async generateRecommendations(
@@ -146,17 +168,23 @@ export class AIService {
       throw new Error(`AI provider error during recommendation generation: ${String(err)}`);
     }
 
-    let parsed = parseJsonSafe<unknown[]>(raw);
+    let parsed = parseJsonSafe<unknown>(raw);
     if (!parsed) {
       raw = await this.provider.complete(prompt);
-      parsed = parseJsonSafe<unknown[]>(raw);
+      parsed = parseJsonSafe<unknown>(raw);
     }
 
     if (!parsed) {
       throw new Error('Failed to parse recommendation response after retry');
     }
 
-    const validated = RecommendationArraySchema.parse(parsed);
+    // Model returns { recommendations: [...] } due to json_object response format
+    const arr =
+      Array.isArray(parsed)
+        ? parsed
+        : (parsed as Record<string, unknown>).recommendations ?? parsed;
+
+    const validated = RecommendationArraySchema.parse(arr);
     return validated;
   }
 }

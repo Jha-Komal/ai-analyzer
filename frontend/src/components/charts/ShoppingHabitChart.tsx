@@ -1,43 +1,40 @@
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { ChartWrapper } from './ChartWrapper';
-import { toChartData } from '../../utils/formatters';
+import { toTopN } from '../../utils/formatters';
 
 interface ShoppingHabitChartProps {
   distribution: Record<string, number>;
 }
 
-const COLORS = ['#f8c91c', '#10b981', '#6366f1', '#f97316', '#38bdf8', '#ec4899'];
+const COLORS = ['#f8c91c', '#10b981', '#6366f1', '#f97316', '#38bdf8', '#ec4899', '#a78bfa', '#34d399'];
 
-function formatLabel(name: string) {
-  return name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+function truncate(s: string, max = 24) {
+  const clean = s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  return clean.length > max ? clean.slice(0, max - 1) + '…' : clean;
 }
 
 export function ShoppingHabitChart({ distribution }: ShoppingHabitChartProps) {
-  const data = toChartData(distribution).map((d) => ({
-    name: formatLabel(d.name),
+  const data = toTopN(distribution, 8).map((d) => ({
+    name: d.name,
+    label: truncate(d.name),
     value: d.value,
   }));
 
   return (
     <ChartWrapper title="Shopping Habits" subtitle="How customers describe their buying behaviour">
-      <ResponsiveContainer width="100%" height={260}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={55}
-            outerRadius={90}
-            paddingAngle={3}
-            dataKey="value"
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-            labelLine={false}
-          >
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
+      <ResponsiveContainer width="100%" height={280}>
+        <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
+          <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+          <YAxis
+            type="category"
+            dataKey="label"
+            tick={{ fontSize: 11 }}
+            tickLine={false}
+            axisLine={false}
+            width={160}
+          />
           <Tooltip
+            cursor={{ fill: 'hsl(var(--muted))' }}
             contentStyle={{
               background: 'hsl(var(--card))',
               border: '1px solid hsl(var(--border))',
@@ -45,9 +42,14 @@ export function ShoppingHabitChart({ distribution }: ShoppingHabitChartProps) {
               fontSize: '12px',
             }}
             formatter={(value: number) => [value, 'Reviews']}
+            labelFormatter={(label) => data.find((d) => d.label === label)?.name ?? label}
           />
-          <Legend formatter={(value) => <span style={{ fontSize: 11 }}>{value}</span>} />
-        </PieChart>
+          <Bar dataKey="value" name="Count" radius={[0, 6, 6, 0]}>
+            {data.map((_, index) => (
+              <Cell key={index} fill={COLORS[index % COLORS.length]} fillOpacity={0.85} />
+            ))}
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </ChartWrapper>
   );

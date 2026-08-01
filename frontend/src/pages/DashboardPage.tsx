@@ -37,7 +37,8 @@ export function DashboardPage() {
   const resetAnalysis = useResetAnalysis();
 
   const status = statusData?.status ?? 'idle';
-  const isPipelineRunning = status !== 'idle' && status !== 'completed';
+  const isPipelineRunning = status !== 'idle' && status !== 'completed' && status !== 'error';
+  const hasPipelineError = status === 'error';
   const betaEnabled = isBetaEnabled();
 
   async function handleLoadReviews() {
@@ -118,6 +119,14 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Pipeline error banner */}
+      {hasPipelineError && (
+        <div className="flex items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <span className="font-semibold">Pipeline error:</span>
+          <span className="text-destructive/80">{statusData?.message ?? 'Something went wrong. Try running again.'}</span>
+        </div>
+      )}
 
       {/* Progress screen */}
       {isPipelineRunning && (

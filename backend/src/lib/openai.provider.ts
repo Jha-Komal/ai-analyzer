@@ -26,7 +26,8 @@ export class OpenAIProvider implements AIProvider {
         },
       ],
       temperature: 0.2,
-      max_tokens: 4096,
+      max_tokens: 6000,
+      response_format: { type: 'json_object' },
     });
 
     return response.choices[0]?.message?.content || '';

@@ -1,11 +1,13 @@
 export type PipelineStatus =
   | 'idle'
+  | 'ingesting'
   | 'loading'
   | 'cleaning'
   | 'analyzing'
   | 'aggregating'
   | 'generating_insights'
-  | 'completed';
+  | 'completed'
+  | 'error';
 
 export interface SourceProgress {
   source: string;

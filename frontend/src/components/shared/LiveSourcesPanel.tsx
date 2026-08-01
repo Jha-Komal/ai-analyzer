@@ -93,10 +93,8 @@ export function LiveSourcesPanel({ sourceProgress }: LiveSourcesPanelProps) {
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">
                   {src.status === 'pending' && 'Waiting…'}
                   {src.status === 'connecting' && 'Connecting…'}
-                  {src.status === 'fetching' && (
-                    src.count > 0 ? `${src.count.toLocaleString()} fetched…` : 'Fetching…'
-                  )}
-                  {src.status === 'done' && `${src.count.toLocaleString()} reviews`}
+                  {src.status === 'fetching' && 'Fetching…'}
+                  {src.status === 'done' && 'Fetched'}
                 </p>
               </div>
 

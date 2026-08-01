@@ -18,14 +18,16 @@ Generate recommendations across 4 priority tiers:
 - high: Significant effort, high strategic value (3-6 months)
 - long_term: Major initiatives, transformative impact (6+ months)
 
-Return ONLY a valid JSON array:
-[
-  {
-    "priority": "quick_win|medium|high|long_term",
-    "title": "<short title>",
-    "description": "<detailed description of what to do and why>"
-  }
-]
+Return ONLY valid JSON in this exact shape:
+{
+  "recommendations": [
+    {
+      "priority": "quick_win|medium|high|long_term",
+      "title": "<short title>",
+      "description": "<detailed description of what to do and why>"
+    }
+  ]
+}
 
 Generate at least 2 recommendations per priority tier (8 total minimum).`;
 }

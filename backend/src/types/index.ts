@@ -3,6 +3,7 @@ export type Sentiment = 'positive' | 'neutral' | 'negative';
 export type Priority = 'quick_win' | 'medium' | 'high' | 'long_term';
 export type PipelineStatus =
   | 'idle'
+  | 'ingesting'
   | 'loading'
   | 'cleaning'
   | 'analyzing'

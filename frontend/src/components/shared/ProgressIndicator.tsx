@@ -3,8 +3,9 @@ import type { PipelineStatus } from '../../types/analysis';
 import { cn } from '../../lib/utils';
 
 const STAGES: { status: PipelineStatus; label: string }[] = [
-  { status: 'loading', label: 'Loading Reviews' },
-  { status: 'cleaning', label: 'Cleaning Reviews' },
+  { status: 'ingesting', label: 'Collecting Live Data' },
+  { status: 'loading',   label: 'Loading Reviews' },
+  { status: 'cleaning',  label: 'Cleaning Reviews' },
   { status: 'analyzing', label: 'Analyzing Reviews' },
   { status: 'aggregating', label: 'Generating Statistics' },
   { status: 'generating_insights', label: 'Generating Insights' },
@@ -13,12 +14,14 @@ const STAGES: { status: PipelineStatus; label: string }[] = [
 
 const STATUS_ORDER: Record<PipelineStatus, number> = {
   idle: -1,
-  loading: 0,
-  cleaning: 1,
-  analyzing: 2,
-  aggregating: 3,
-  generating_insights: 4,
-  completed: 5,
+  error: -1,
+  ingesting: 0,
+  loading: 1,
+  cleaning: 2,
+  analyzing: 3,
+  aggregating: 4,
+  generating_insights: 5,
+  completed: 6,
 };
 
 interface ProgressIndicatorProps {
