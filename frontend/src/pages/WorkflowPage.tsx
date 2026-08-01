@@ -160,7 +160,7 @@ export function WorkflowPage() {
 
               {i < STEPS.length - 1 && (
                 <div className="flex justify-center">
-                  <ArrowDownIcon className="h-4 w-4 text-muted-foreground/30" />
+                  <ArrowDownIcon className="h-5 w-5 text-muted-foreground/60" />
                 </div>
               )}
             </div>
