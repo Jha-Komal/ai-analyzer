@@ -27,7 +27,7 @@ export class DashboardController {
         sourceDistribution: JSON.parse(cache.sourceDistribution),
         shoppingHabitDistribution: JSON.parse(cache.shoppingHabitDistribution),
         barrierDistribution: JSON.parse(cache.barrierDistribution),
-        sentimentTrend: JSON.parse(cache.sentimentTrend),
+        sentimentTrend: JSON.parse(cache.sentimentTrend ?? '[]'),
         recommendationSummary: cache.recommendationSummary,
         updatedAt: cache.updatedAt,
       });
