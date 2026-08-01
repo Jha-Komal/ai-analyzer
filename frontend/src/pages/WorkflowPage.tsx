@@ -188,7 +188,7 @@ export function WorkflowPage() {
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
         <h3 className="text-lg font-semibold text-foreground">Tech Stack</h3>
         <div className="flex flex-wrap gap-2">
-          {['OpenAI API', 'Node.js + Express', 'Prisma + SQLite', 'React + Vite', 'TailwindCSS', 'Recharts', 'Zod'].map((t) => (
+          {['OpenAI API', 'React', 'Node.js'].map((t) => (
             <span key={t} className="text-sm font-medium px-2.5 py-1 rounded-full bg-muted border border-border text-muted-foreground">
               {t}
             </span>

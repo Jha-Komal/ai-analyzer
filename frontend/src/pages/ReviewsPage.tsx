@@ -58,7 +58,7 @@ export function ReviewsPage() {
               {showFilters ? 'Hide Filters' : 'Show Filters'}
             </Button>
             {data && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 {data.total.toLocaleString()} review{data.total !== 1 ? 's' : ''}
               </p>
             )}

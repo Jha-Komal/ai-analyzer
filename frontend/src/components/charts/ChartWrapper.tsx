@@ -13,8 +13,8 @@ export function ChartWrapper({ title, subtitle, children, className }: ChartWrap
   return (
     <Card className={cn('', className)}>
       <CardHeader className="pb-1 pt-4 px-4">
-        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
-        {subtitle && <CardDescription className="text-xs">{subtitle}</CardDescription>}
+        <CardTitle className="text-base font-semibold">{title}</CardTitle>
+        {subtitle && <CardDescription className="text-sm">{subtitle}</CardDescription>}
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-4">{children}</CardContent>
     </Card>

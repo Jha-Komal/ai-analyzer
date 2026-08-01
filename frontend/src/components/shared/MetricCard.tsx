@@ -27,8 +27,8 @@ export function MetricCard({
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-xl font-bold text-foreground">{value}</p>
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
             {trend && (
               <p className={cn('text-xs', trend.value >= 0 ? 'text-green-500' : 'text-red-500')}>
                 {trend.value >= 0 ? '+' : ''}{trend.value}% {trend.label}

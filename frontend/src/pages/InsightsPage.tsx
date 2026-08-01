@@ -57,8 +57,8 @@ export function InsightsPage() {
           <LightbulbIcon className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-foreground">AI-Generated Insights</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-xl font-semibold text-foreground">AI-Generated Insights</h2>
+          <p className="text-base text-muted-foreground">
             {data.length} insight{data.length !== 1 ? 's' : ''} from your review data
           </p>
         </div>
@@ -69,14 +69,14 @@ export function InsightsPage() {
           <Card key={insight.id} className="flex flex-col">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-sm font-semibold text-foreground leading-snug">
+                <h3 className="text-base font-semibold text-foreground leading-snug">
                   {insight.question}
                 </h3>
                 <ConfidenceBadge value={insight.confidence} />
               </div>
             </CardHeader>
             <CardContent className="flex-1 space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 {insight.answer}
               </p>
               <ConfidenceBar value={insight.confidence} />

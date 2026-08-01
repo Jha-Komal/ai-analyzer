@@ -58,7 +58,7 @@ export function DashboardPage() {
     <div className="space-y-4">
       {/* Action Bar */}
       <div className="flex flex-wrap gap-3 items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Manage and analyze your customer reviews
         </p>
         <div className="flex gap-3">

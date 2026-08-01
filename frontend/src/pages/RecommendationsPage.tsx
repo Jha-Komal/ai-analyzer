@@ -69,13 +69,13 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
         <div className={cn('rounded-xl p-2.5', cfg.iconClass)}>
           <Icon className="h-5 w-5" />
         </div>
-        <span className={cn('text-xs font-semibold tracking-wide uppercase', cfg.labelClass)}>
+        <span className={cn('text-sm font-semibold tracking-wide uppercase', cfg.labelClass)}>
           {cfg.label}
         </span>
       </div>
       <div className="space-y-2">
-        <h4 className="text-sm font-bold text-foreground leading-snug">{rec.title}</h4>
-        <p className="text-xs text-muted-foreground leading-relaxed">{rec.description}</p>
+        <h4 className="text-base font-bold text-foreground leading-snug">{rec.title}</h4>
+        <p className="text-sm text-muted-foreground leading-relaxed">{rec.description}</p>
       </div>
     </div>
   );
@@ -133,8 +133,8 @@ export function RecommendationsPage() {
                 <Icon className="h-4 w-4" />
               </div>
               <div className="flex items-baseline gap-2">
-                <h2 className="text-base font-bold text-foreground">{cfg.label}</h2>
-                <span className="text-xs text-muted-foreground">
+                <h2 className="text-lg font-bold text-foreground">{cfg.label}</h2>
+                <span className="text-sm text-muted-foreground">
                   {recs.length} item{recs.length !== 1 ? 's' : ''}
                 </span>
               </div>
