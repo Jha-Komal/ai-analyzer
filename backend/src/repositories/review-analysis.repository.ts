@@ -17,6 +17,7 @@ export class ReviewAnalysisRepository {
         barrier: result.barrier ?? null,
         experimentLikelihood: result.experimentLikelihood ?? null,
         featureRequests: JSON.stringify(result.featureRequests),
+        category: result.category ?? null,
         summary: result.summary,
         confidence: result.confidence,
       },

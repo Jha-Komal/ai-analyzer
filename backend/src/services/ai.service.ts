@@ -72,6 +72,7 @@ export class AIService {
         barrier: v.barrier ?? undefined,
         experimentLikelihood: v.experimentLikelihood ?? undefined,
         featureRequests: v.featureRequests,
+        category: v.category ?? undefined,
         summary: v.summary,
         confidence: v.confidence,
       },

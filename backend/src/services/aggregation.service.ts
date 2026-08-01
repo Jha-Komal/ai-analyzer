@@ -16,6 +16,7 @@ export class AggregationService {
     const emotionFrequency: Record<string, number> = {};
     const shoppingHabitDistribution: Record<string, number> = {};
     const barrierDistribution: Record<string, number> = {};
+    const categoryFrequency: Record<string, number> = {};
     const sourceDistribution: Record<string, number> = {};
 
     let ratingSum = 0;
@@ -72,6 +73,11 @@ export class AggregationService {
       if (analysis.barrier) {
         barrierDistribution[analysis.barrier] = (barrierDistribution[analysis.barrier] || 0) + 1;
       }
+
+      // Category
+      if (analysis.category) {
+        categoryFrequency[analysis.category] = (categoryFrequency[analysis.category] || 0) + 1;
+      }
     }
 
     void analyzed; // suppress unused warning
@@ -88,6 +94,7 @@ export class AggregationService {
       emotionFrequency,
       shoppingHabitDistribution,
       barrierDistribution,
+      categoryFrequency,
     };
   }
 
@@ -100,7 +107,7 @@ export class AggregationService {
       averageRating: stats.averageRating,
       themeDistribution: stats.themeFrequency,
       emotionDistribution: stats.emotionFrequency,
-      categoryDistribution: stats.sourceDistribution,
+      categoryDistribution: stats.categoryFrequency,
       painPointDistribution: stats.painPointFrequency,
       sourceDistribution: stats.sourceDistribution,
       shoppingHabitDistribution: stats.shoppingHabitDistribution,

@@ -16,6 +16,7 @@ export const AnalysisResultSchema = z.object({
   barrier: z.string().nullable().optional(),
   experimentLikelihood: z.enum(['high', 'medium', 'low']).nullable().optional(),
   featureRequests: nullableStringArray,
+  category: z.string().optional().nullable(),
   summary: z.string().min(1),
   confidence: z.number().min(0).max(1),
 });

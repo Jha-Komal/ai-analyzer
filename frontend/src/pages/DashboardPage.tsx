@@ -12,11 +12,13 @@ import {
 import { Button } from '../components/ui/button';
 import { MetricCard } from '../components/shared/MetricCard';
 import { ProgressIndicator } from '../components/shared/ProgressIndicator';
+import { LiveSourcesPanel } from '../components/shared/LiveSourcesPanel';
 import { Loader } from '../components/shared/Loader';
 import { ErrorState } from '../components/shared/ErrorState';
 import { EmptyState } from '../components/shared/EmptyState';
 import { SentimentPieChart } from '../components/charts/SentimentPieChart';
 import { SourcePieChart } from '../components/charts/SourcePieChart';
+import { CategoryBarChart } from '../components/charts/CategoryBarChart';
 import { ThemeBarChart } from '../components/charts/ThemeBarChart';
 import { PainPointBarChart } from '../components/charts/PainPointBarChart';
 import { EmotionBarChart } from '../components/charts/EmotionBarChart';
@@ -119,8 +121,13 @@ export function DashboardPage() {
 
       {/* Progress screen */}
       {isPipelineRunning && (
-        <div className="rounded-xl border border-border bg-card">
-          <ProgressIndicator currentStatus={status} />
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="rounded-xl border border-border bg-card">
+            <ProgressIndicator currentStatus={status} />
+          </div>
+          <div className="rounded-xl border border-border bg-card p-6">
+            <LiveSourcesPanel sourceProgress={statusData?.sourceProgress} />
+          </div>
         </div>
       )}
 
@@ -188,6 +195,9 @@ export function DashboardPage() {
             <SourcePieChart data={dashboard} />
             {Object.keys(dashboard.emotionDistribution ?? {}).length > 0 && (
               <EmotionBarChart distribution={dashboard.emotionDistribution} />
+            )}
+            {Object.keys(dashboard.categoryDistribution ?? {}).length > 0 && (
+              <CategoryBarChart distribution={dashboard.categoryDistribution} />
             )}
             {Object.keys(dashboard.themeDistribution ?? {}).length > 0 && (
               <ThemeBarChart distribution={dashboard.themeDistribution} />

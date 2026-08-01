@@ -13,6 +13,7 @@ For each review, extract:
 - experimentLikelihood: likelihood of trying new categories ("high", "medium", "low", or null)
 - featureRequests: array of features the user wants
 - summary: one-sentence summary of the review
+- category: product category the review is about. Must be one of: "Fresh & Grocery", "Electronics", "Home & Kitchen", "Personal Care", "Baby Care", "Snacks & Beverages", "Dairy & Breakfast", "Cleaning Essentials", "Pharmacy", "Pet Care", "Other". Infer from context — if unclear, use "Other".
 - confidence: confidence score of the analysis (0.0 to 1.0)
 
 Reviews to analyze:
@@ -30,6 +31,7 @@ Return ONLY a valid JSON array in this exact format:
     "barrier": "<barrier or null>",
     "experimentLikelihood": "high|medium|low|null",
     "featureRequests": ["<feature1>"],
+    "category": "<category>",
     "summary": "<one sentence summary>",
     "confidence": 0.95
   }

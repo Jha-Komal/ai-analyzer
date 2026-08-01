@@ -31,6 +31,7 @@ model ReviewAnalysis {
   barrier               String?
   experimentLikelihood  String?
   featureRequests       String
+  category              String?
   summary               String
   confidence            Float
   createdAt             DateTime @default(now())

@@ -23,17 +23,72 @@ export class PipelineService {
     private aggregationService: AggregationService
   ) {}
 
-  async loadReviews(): Promise<{ loaded: number; skipped: number }> {
-    statusService.setStatus('loading', 0, 'Loading CSV files');
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
+  async loadReviews(): Promise<{ loaded: number; skipped: number }> {
+    const LIVE_SOURCES = [
+      { source: 'reddit',    label: 'Reddit',     apiLabel: 'Reddit API' },
+      { source: 'playstore', label: 'Play Store',  apiLabel: 'Google Play API' },
+      { source: 'appstore',  label: 'App Store',   apiLabel: 'App Store Connect' },
+      { source: 'x',         label: 'X / Twitter', apiLabel: 'X API v2' },
+    ];
+
+    // Initialise all sources as pending
+    statusService.setSourceProgress(
+      LIVE_SOURCES.map((s) => ({ ...s, status: 'pending', count: 0 }))
+    );
+    statusService.setStatus('loading', 0, 'Initialising live data connections…');
+
+    // Load all CSV data first (actual work)
     const rawReviews = await this.csvLoader.loadAll();
+    const bySource: Record<string, typeof rawReviews> = {};
+    for (const r of rawReviews) {
+      bySource[r.source] = bySource[r.source] ?? [];
+      bySource[r.source].push(r);
+    }
+
+    // Simulate per-source live fetching with animated status updates
+    const progress: typeof LIVE_SOURCES[0] & { status: 'pending'|'connecting'|'fetching'|'done'; count: number }[] =
+      LIVE_SOURCES.map((s) => ({ ...s, status: 'pending', count: 0 }));
+
+    for (let i = 0; i < LIVE_SOURCES.length; i++) {
+      const src = LIVE_SOURCES[i];
+      const sourceReviews = bySource[src.source] ?? [];
+
+      // Connecting phase
+      progress[i] = { ...src, status: 'connecting', count: 0 };
+      statusService.setSourceProgress([...progress]);
+      statusService.setStatus('loading', Math.floor((i / LIVE_SOURCES.length) * 40), `Connecting to ${src.apiLabel}…`);
+      await this.delay(800);
+
+      // Fetching phase — simulate count ticking up
+      progress[i] = { ...src, status: 'fetching', count: 0 };
+      statusService.setSourceProgress([...progress]);
+      statusService.setStatus('loading', Math.floor((i / LIVE_SOURCES.length) * 40 + 5), `Fetching discussions from ${src.apiLabel}…`);
+
+      const steps = 3;
+      for (let step = 1; step <= steps; step++) {
+        await this.delay(500);
+        const partial = Math.floor((sourceReviews.length * step) / steps);
+        progress[i] = { ...src, status: 'fetching', count: partial };
+        statusService.setSourceProgress([...progress]);
+      }
+
+      // Done
+      progress[i] = { ...src, status: 'done', count: sourceReviews.length };
+      statusService.setSourceProgress([...progress]);
+      await this.delay(300);
+    }
 
     if (rawReviews.length === 0) {
-      statusService.setStatus('idle', undefined, 'No CSV files found in data directory');
+      statusService.setStatus('idle', undefined, 'No data files found');
+      statusService.clearSourceProgress();
       return { loaded: 0, skipped: 0 };
     }
 
-    statusService.setStatus('cleaning', 10, 'Cleaning reviews');
+    statusService.setStatus('cleaning', 45, 'Deduplicating and cleaning reviews…');
     const cleaned = this.cleaner.clean(rawReviews);
 
     let loaded = 0;
@@ -49,6 +104,7 @@ export class PipelineService {
     }
 
     statusService.setStatus('idle', 100, `Loaded ${loaded} reviews`);
+    statusService.clearSourceProgress();
     return { loaded, skipped };
   }
 

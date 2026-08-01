@@ -50,6 +50,7 @@ export interface AnalysisResult {
   barrier?: string;
   experimentLikelihood?: string;
   featureRequests: string[];
+  category?: string;
   summary: string;
   confidence: number;
 }
@@ -66,10 +67,19 @@ export interface AggregationStats {
   emotionFrequency: Record<string, number>;
   shoppingHabitDistribution: Record<string, number>;
   barrierDistribution: Record<string, number>;
+  categoryFrequency: Record<string, number>;
+}
+
+export interface SourceProgress {
+  source: string;
+  label: string;
+  status: 'pending' | 'connecting' | 'fetching' | 'done';
+  count: number;
 }
 
 export interface StatusState {
   status: PipelineStatus;
   progress?: number;
   message?: string;
+  sourceProgress?: SourceProgress[];
 }

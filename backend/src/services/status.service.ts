@@ -1,10 +1,11 @@
-import { PipelineStatus, StatusState } from '../types';
+import { PipelineStatus, SourceProgress, StatusState } from '../types';
 
 class StatusService {
   private state: StatusState = {
     status: 'idle',
     progress: undefined,
     message: undefined,
+    sourceProgress: undefined,
   };
 
   getStatus(): StatusState {
@@ -12,7 +13,15 @@ class StatusService {
   }
 
   setStatus(status: PipelineStatus, progress?: number, message?: string): void {
-    this.state = { status, progress, message };
+    this.state = { ...this.state, status, progress, message };
+  }
+
+  setSourceProgress(sourceProgress: SourceProgress[]): void {
+    this.state = { ...this.state, sourceProgress };
+  }
+
+  clearSourceProgress(): void {
+    this.state = { ...this.state, sourceProgress: undefined };
   }
 
   reset(): void {
