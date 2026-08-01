@@ -12,11 +12,11 @@ interface ChartWrapperProps {
 export function ChartWrapper({ title, subtitle, children, className }: ChartWrapperProps) {
   return (
     <Card className={cn('', className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base">{title}</CardTitle>
-        {subtitle && <CardDescription>{subtitle}</CardDescription>}
+      <CardHeader className="pb-1 pt-4 px-4">
+        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+        {subtitle && <CardDescription className="text-xs">{subtitle}</CardDescription>}
       </CardHeader>
-      <CardContent className="pt-0">{children}</CardContent>
+      <CardContent className="pt-0 px-4 pb-4">{children}</CardContent>
     </Card>
   );
 }

@@ -24,25 +24,19 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card className={cn('', className)}>
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold text-foreground">{value}</p>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-xl font-bold text-foreground">{value}</p>
             {trend && (
-              <p
-                className={cn(
-                  'text-xs',
-                  trend.value >= 0 ? 'text-green-500' : 'text-red-500'
-                )}
-              >
-                {trend.value >= 0 ? '+' : ''}
-                {trend.value}% {trend.label}
+              <p className={cn('text-xs', trend.value >= 0 ? 'text-green-500' : 'text-red-500')}>
+                {trend.value >= 0 ? '+' : ''}{trend.value}% {trend.label}
               </p>
             )}
           </div>
           <div className={cn('rounded-lg bg-muted p-2', iconColor)}>
-            <Icon className="h-5 w-5" />
+            <Icon className="h-4 w-4" />
           </div>
         </div>
       </CardContent>

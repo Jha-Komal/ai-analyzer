@@ -6,7 +6,9 @@ import {
   StarIcon,
   ZapIcon,
   RotateCcwIcon,
+  LightbulbIcon,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { MetricCard } from '../components/shared/MetricCard';
 import { ProgressIndicator } from '../components/shared/ProgressIndicator';
@@ -32,6 +34,7 @@ export function DashboardPage() {
   const { data: dashboard, isLoading: dashLoading, error: dashError, refetch } = useDashboard();
   const { data: statusData } = useStatus();
   const analyzeReviews = useAnalyzeReviews();
+  const navigate = useNavigate();
   const resetAnalysis = useResetAnalysis();
 
   const status = statusData?.status ?? 'idle';
@@ -52,13 +55,17 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Action Bar */}
       <div className="flex flex-wrap gap-3 items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Manage and analyze your customer reviews
         </p>
         <div className="flex gap-3">
+          <Button variant="outline" onClick={() => navigate('/insights')}>
+            <LightbulbIcon className="h-4 w-4" />
+            View Insights
+          </Button>
           <Button
             onClick={handleAnalyze}
             disabled={analyzeReviews.isPending || isPipelineRunning}
@@ -142,7 +149,7 @@ export function DashboardPage() {
       {dashboard && (
         <>
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
             <MetricCard
               label="Total Reviews"
               value={dashboard.totalCount.toLocaleString()}
@@ -176,7 +183,7 @@ export function DashboardPage() {
           </div>
 
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <SentimentPieChart data={dashboard} />
             <SourcePieChart data={dashboard} />
             {Object.keys(dashboard.emotionDistribution ?? {}).length > 0 && (
