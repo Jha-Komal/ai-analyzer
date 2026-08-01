@@ -38,7 +38,7 @@ export class ReviewRepository {
   async findMany(params: {
     skip: number;
     take: number;
-    source?: string;
+    source?: string[];
     sentiment?: string;
     theme?: string;
     keyword?: string;
@@ -48,7 +48,7 @@ export class ReviewRepository {
   }): Promise<{ reviews: (Review & { analysis: ReviewAnalysis | null })[]; total: number }> {
     const where: Record<string, unknown> = {};
 
-    if (params.source) where['source'] = params.source;
+    if (params.source?.length) where['source'] = { in: params.source };
     if (params.rating !== undefined) where['rating'] = { gte: params.rating };
     if (params.dateFrom || params.dateTo) {
       where['reviewDate'] = {};

@@ -11,7 +11,13 @@ export const ReviewQuerySchema = z.object({
     .optional()
     .transform((v) => (v ? parseInt(v, 10) : 20))
     .pipe(z.number().int().positive().max(100)),
-  source: z.enum(['reddit', 'playstore', 'appstore', 'x', 'community']).optional(),
+  source: z
+    .string()
+    .optional()
+    .transform((v) =>
+      v ? v.split(',').filter((s) => ['reddit', 'playstore', 'appstore', 'x'].includes(s)) : undefined
+    )
+    .pipe(z.array(z.enum(['reddit', 'playstore', 'appstore', 'x'])).optional()),
   sentiment: z.enum(['positive', 'neutral', 'negative']).optional(),
   theme: z.string().optional(),
   keyword: z.string().optional(),
