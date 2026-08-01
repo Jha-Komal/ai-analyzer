@@ -1,5 +1,5 @@
 import { Review, ReviewAnalysis } from '@prisma/client';
-import { AggregationStats } from '../types';
+import { AggregationStats, SentimentTrendPoint } from '../types';
 import { DashboardCacheData } from '../repositories/dashboard-cache.repository';
 
 type ReviewWithAnalysis = Review & { analysis: ReviewAnalysis | null };
@@ -18,6 +18,7 @@ export class AggregationService {
     const barrierDistribution: Record<string, number> = {};
     const categoryFrequency: Record<string, number> = {};
     const sourceDistribution: Record<string, number> = {};
+    const trendByMonth: Record<string, { positive: number; neutral: number; negative: number }> = {};
 
     let ratingSum = 0;
     let ratingCount = 0;
@@ -39,6 +40,18 @@ export class AggregationService {
       if (analysis.sentiment === 'positive') positiveCount++;
       else if (analysis.sentiment === 'neutral') neutralCount++;
       else if (analysis.sentiment === 'negative') negativeCount++;
+
+      // Sentiment trend by month
+      if (review.reviewDate) {
+        const d = new Date(review.reviewDate);
+        if (!isNaN(d.getTime())) {
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          if (!trendByMonth[key]) trendByMonth[key] = { positive: 0, neutral: 0, negative: 0 };
+          if (analysis.sentiment === 'positive') trendByMonth[key].positive++;
+          else if (analysis.sentiment === 'neutral') trendByMonth[key].neutral++;
+          else if (analysis.sentiment === 'negative') trendByMonth[key].negative++;
+        }
+      }
 
       // Themes
       try {
@@ -82,6 +95,10 @@ export class AggregationService {
 
     void analyzed; // suppress unused warning
 
+    const sentimentTrend: SentimentTrendPoint[] = Object.entries(trendByMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, counts]) => ({ month, ...counts }));
+
     return {
       totalCount: reviews.length,
       positiveCount,
@@ -95,6 +112,7 @@ export class AggregationService {
       shoppingHabitDistribution,
       barrierDistribution,
       categoryFrequency,
+      sentimentTrend,
     };
   }
 
@@ -112,6 +130,7 @@ export class AggregationService {
       sourceDistribution: stats.sourceDistribution,
       shoppingHabitDistribution: stats.shoppingHabitDistribution,
       barrierDistribution: stats.barrierDistribution,
+      sentimentTrend: stats.sentimentTrend,
     };
   }
 }

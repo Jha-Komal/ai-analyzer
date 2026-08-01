@@ -53,6 +53,7 @@ model DashboardCache {
   sourceDistribution         String   @default("{}")
   shoppingHabitDistribution  String   @default("{}")
   barrierDistribution        String   @default("{}")
+  sentimentTrend             String   @default("[]")
   recommendationSummary      String?
   updatedAt             DateTime @updatedAt
 }

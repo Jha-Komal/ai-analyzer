@@ -1,3 +1,10 @@
+export interface SentimentTrendPoint {
+  month: string;
+  positive: number;
+  neutral: number;
+  negative: number;
+}
+
 export interface DashboardData {
   positiveCount: number;
   neutralCount: number;
@@ -11,4 +18,5 @@ export interface DashboardData {
   sourceDistribution?: Record<string, number>;
   shoppingHabitDistribution?: Record<string, number>;
   barrierDistribution?: Record<string, number>;
+  sentimentTrend?: SentimentTrendPoint[];
 }

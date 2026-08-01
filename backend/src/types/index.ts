@@ -69,6 +69,14 @@ export interface AggregationStats {
   shoppingHabitDistribution: Record<string, number>;
   barrierDistribution: Record<string, number>;
   categoryFrequency: Record<string, number>;
+  sentimentTrend: SentimentTrendPoint[];
+}
+
+export interface SentimentTrendPoint {
+  month: string;
+  positive: number;
+  neutral: number;
+  negative: number;
 }
 
 export interface SourceProgress {

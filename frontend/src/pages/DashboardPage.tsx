@@ -22,6 +22,7 @@ import { PainPointBarChart } from '../components/charts/PainPointBarChart';
 import { EmotionBarChart } from '../components/charts/EmotionBarChart';
 import { ShoppingHabitChart } from '../components/charts/ShoppingHabitChart';
 import { BarrierChart } from '../components/charts/BarrierChart';
+import { TrendChart } from '../components/charts/TrendChart';
 import { useDashboard } from '../hooks/useDashboard';
 import { useStatus } from '../hooks/useStatus';
 import { useAnalyzeReviews, useResetAnalysis } from '../hooks/useReviews';
@@ -195,6 +196,9 @@ export function DashboardPage() {
             )}
             {Object.keys(dashboard.barrierDistribution ?? {}).length > 0 && (
               <BarrierChart distribution={dashboard.barrierDistribution!} />
+            )}
+            {(dashboard.sentimentTrend?.length ?? 0) > 1 && (
+              <TrendChart data={dashboard.sentimentTrend!} />
             )}
           </div>
         </>

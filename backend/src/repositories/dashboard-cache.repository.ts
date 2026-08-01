@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { DashboardCache } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { SentimentTrendPoint } from '../types';
 
 export interface DashboardCacheData {
   totalCount: number;
@@ -15,6 +16,7 @@ export interface DashboardCacheData {
   sourceDistribution: Record<string, number>;
   shoppingHabitDistribution: Record<string, number>;
   barrierDistribution: Record<string, number>;
+  sentimentTrend: SentimentTrendPoint[];
   recommendationSummary?: string;
 }
 
@@ -35,6 +37,7 @@ export class DashboardCacheRepository {
       sourceDistribution: JSON.stringify(data.sourceDistribution),
       shoppingHabitDistribution: JSON.stringify(data.shoppingHabitDistribution),
       barrierDistribution: JSON.stringify(data.barrierDistribution),
+      sentimentTrend: JSON.stringify(data.sentimentTrend),
       recommendationSummary: data.recommendationSummary,
     };
 
