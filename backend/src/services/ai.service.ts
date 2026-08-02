@@ -203,6 +203,61 @@ Respond with ONLY this JSON object (no array, no wrapper):
     };
   }
 
+  async buildAiCart(
+    prompt: string,
+    budget: number,
+    products: Array<{ id: string; name: string; price: number; category: string }>
+  ): Promise<{ items: Array<{ id: string; quantity: number }> }> {
+    const productList = products
+      .map(p => `${p.id}: ${p.name} (${p.category}) ₹${p.price}`)
+      .join('\n');
+
+    const aiPrompt = `You are a smart shopping assistant for Blinkit (Indian quick-commerce app).
+
+Customer request: "${prompt}"
+Budget: ₹${budget} maximum
+
+Available products (format: id: name (category) ₹price):
+${productList}
+
+Build the BEST cart fulfilling the request. Rules:
+1. Total price must NOT exceed ₹${budget}
+2. Pick 4-8 items from relevant categories for the request
+3. Use reasonable quantities (1-2 each)
+4. Only use IDs from the list above — never invent IDs
+5. Diverse categories make a better cart
+
+Return ONLY this exact JSON (no markdown, no explanation):
+{"items":[{"id":"...","quantity":N},...]}`;
+
+    let raw: string;
+    try {
+      raw = await this.provider.complete(aiPrompt);
+    } catch (err) {
+      throw new Error(`AI provider error: ${String(err)}`);
+    }
+
+    const parsed = parseJsonSafe<unknown>(raw);
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Failed to parse ai-cart response');
+    }
+
+    const p = parsed as Record<string, unknown>;
+    const rawItems = Array.isArray(p.items) ? p.items : [];
+
+    const validIds = new Set(products.map(pr => pr.id));
+    const items = (rawItems as unknown[])
+      .filter((item): item is { id: string; quantity: number } =>
+        typeof item === 'object' && item !== null &&
+        typeof (item as Record<string, unknown>).id === 'string' &&
+        typeof (item as Record<string, unknown>).quantity === 'number' &&
+        validIds.has((item as Record<string, unknown>).id as string)
+      )
+      .map(item => ({ id: item.id, quantity: Math.max(1, Math.min(5, Math.round(item.quantity))) }));
+
+    return { items };
+  }
+
   async generateRecommendations(
     stats: AggregationStats,
     insights: Array<{ question: string; answer: string }>

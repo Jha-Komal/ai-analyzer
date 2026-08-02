@@ -378,6 +378,109 @@ function pct(price: number, mrp: number) {
   return Math.round(((mrp - price) / mrp) * 100);
 }
 
+// ─── AI Buddy ─────────────────────────────────────────────────────────────────
+
+const AI_PRESETS = [
+  { id:'movie',   emoji:'🎬', title:'Movie Night',     sub:'Munchies, drinks & more',         budget:800,  prompt:'movie night cart with chips, popcorn, coke and snacks' },
+  { id:'home',    emoji:'🏠', title:'New Home Setup',  sub:'Kitchen & cleaning essentials',   budget:1500, prompt:'new home setup with kitchen basics, cleaning supplies and daily essentials' },
+  { id:'fitness', emoji:'🏋️', title:'Fitness Pack',    sub:'Healthy snacks & proteins',       budget:600,  prompt:'fitness pack with protein rich foods, fruits and healthy snacks' },
+  { id:'morning', emoji:'☕', title:'Morning Routine', sub:'Breakfast & beverages',           budget:400,  prompt:'morning routine with bread, eggs, milk, tea or coffee and breakfast items' },
+  { id:'party',   emoji:'🎉', title:'Party Snacks',    sub:'Chips, drinks & chocolates',      budget:1000, prompt:'party snacks with chips, beverages, chocolates, namkeen and party essentials' },
+] as const;
+
+function AiBuddyPanel({ onClose, onBulkAdd }: {
+  onClose: () => void;
+  onBulkAdd: (items: Array<{id: string; quantity: number}>) => void;
+}) {
+  const [loading, setLoading] = useState<string | null>(null);
+  const [error,   setError]   = useState<string | null>(null);
+
+  const CATALOG = Object.entries(PRODUCTS).flatMap(([cat, prods]) =>
+    prods.map(p => ({ id: p.id, name: p.name, price: p.price, category: cat }))
+  );
+
+  async function pick(preset: typeof AI_PRESETS[number]) {
+    setLoading(preset.id);
+    setError(null);
+    try {
+      const res = await api.post<{ success: boolean; data: { items: Array<{id: string; quantity: number}> } }>(
+        '/api/ai-cart',
+        { prompt: preset.prompt, budget: preset.budget, products: CATALOG }
+      );
+      if (res.data.success && res.data.data.items.length > 0) {
+        onBulkAdd(res.data.data.items);
+      } else {
+        setError('AI couldn\'t build a cart. Try another option!');
+        setLoading(null);
+      }
+    } catch {
+      setError('Something went wrong. Try again!');
+      setLoading(null);
+    }
+  }
+
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:50, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.5)' }} />
+      <div style={{ position:'relative', background:'#fff', borderRadius:'20px 20px 0 0', paddingBottom:20 }}>
+        {/* Header */}
+        <div style={{ background:'linear-gradient(135deg,#0C831F,#4CAF50)', padding:'16px 16px 14px', borderRadius:'20px 20px 0 0' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ width:34, height:34, background:'rgba(255,255,255,0.2)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🤖</div>
+              <div>
+                <div style={{ fontSize:14, fontWeight:800, color:'#fff' }}>AI Buddy</div>
+                <div style={{ fontSize:9.5, color:'rgba(255,255,255,0.85)', fontWeight:500 }}>Powered by AI · Blinkit</div>
+              </div>
+            </div>
+            <button onClick={onClose} style={{ width:28, height:28, borderRadius:'50%', background:'rgba(255,255,255,0.2)', border:'none', cursor:'pointer', fontSize:14, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+          </div>
+          <div style={{ marginTop:10, fontSize:12, color:'rgba(255,255,255,0.92)', fontWeight:600 }}>What are you planning today? 🛒</div>
+        </div>
+
+        <div style={{ padding:'12px 14px 0' }}>
+          {error && (
+            <div style={{ background:'#FEE2E2', borderRadius:8, padding:'8px 10px', fontSize:11, color:'#DC2626', marginBottom:8 }}>{error}</div>
+          )}
+          {AI_PRESETS.map(preset => (
+            <button
+              key={preset.id}
+              onClick={() => !loading && pick(preset)}
+              disabled={!!loading}
+              style={{
+                width:'100%', background: loading === preset.id ? '#F0FDF4' : '#fff',
+                border: loading === preset.id ? '1.5px solid #0C831F' : '1.5px solid #eee',
+                borderRadius:12, padding:'11px 14px', marginBottom:8,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display:'flex', alignItems:'center', gap:12, textAlign:'left',
+                opacity: loading && loading !== preset.id ? 0.45 : 1,
+              }}
+            >
+              <span style={{ fontSize:24, flexShrink:0 }}>{preset.emoji}</span>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:'#1a1a1a' }}>{preset.title}</div>
+                <div style={{ fontSize:10, color:'#555', marginTop:1 }}>{preset.sub}</div>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:5, flexShrink:0 }}>
+                <span style={{ fontSize:9.5, fontWeight:700, color:'#0C831F', background:'#E8F5E9', borderRadius:6, padding:'2px 7px' }}>under ₹{preset.budget}</span>
+                {loading === preset.id
+                  ? <div style={{ width:16, height:16, border:'2px solid #C8E6C9', borderTopColor:'#0C831F', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+                  : <span style={{ fontSize:14, color:'#0C831F', fontWeight:700 }}>›</span>
+                }
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ padding:'2px 14px 0', display:'flex', alignItems:'center', gap:5 }}>
+          <span style={{ fontSize:9 }}>✨</span>
+          <span style={{ fontSize:9.5, color:'#888' }}>AI picks the best items for you instantly</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Product Card ─────────────────────────────────────────────────────────────
 
 function ProductCard({ p, qty, onAdd, onInc, onDec }: {
@@ -963,13 +1066,14 @@ function SectionGrid({ title, cats, onCatClick }: { title: string; cats: CatTile
   );
 }
 
-function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick }: {
+function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiBuddy }: {
   cart: CartMap;
   onAdd: (id: string) => void;
   onInc: (id: string) => void;
   onDec: (id: string) => void;
   onViewCart: () => void;
   onCatClick: (label: string) => void;
+  onOpenAiBuddy: () => void;
 }) {
   const [activeCat, setActiveCat] = useState('all');
   const [search, setSearch]       = useState('');
@@ -995,7 +1099,12 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick }: {
               <span style={{ fontSize: 11 }}>▾</span>
             </div>
           </div>
-          <div style={{ paddingTop: 4 }}>
+          <div style={{ paddingTop: 4, display:'flex', alignItems:'center', gap:8 }}>
+            <button onClick={onOpenAiBuddy}
+              title="AI Buddy"
+              style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#0C831F,#4CAF50)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 8px rgba(12,131,31,0.4)', flexShrink:0 }}>
+              <span style={{ fontSize:16 }}>🤖</span>
+            </button>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 18 }}>👤</span>
             </div>
@@ -1108,36 +1217,53 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick }: {
 type View = 'home' | 'category' | 'cart';
 
 function BlinkitApp() {
-  const [view,     setView]     = useState<View>('home');
-  const [category, setCategory] = useState('');
-  const [cart,     setCart]     = useState<CartMap>({});
+  const [view,          setView]        = useState<View>('home');
+  const [category,      setCategory]    = useState('');
+  const [cart,          setCart]        = useState<CartMap>({});
+  const [aiBuddyOpen,   setAiBuddyOpen] = useState(false);
 
   function add(id: string) { setCart(c => ({ ...c, [id]: 1 })); }
   function inc(id: string) { setCart(c => ({ ...c, [id]: (c[id] ?? 0) + 1 })); }
   function dec(id: string) {
     setCart(c => { const n = { ...c }; if ((n[id] ?? 0) <= 1) delete n[id]; else n[id]--; return n; });
   }
+  function bulkAdd(items: Array<{id: string; quantity: number}>) {
+    setCart(c => {
+      const n = { ...c };
+      items.forEach(({ id, quantity }) => { if (ALL_PRODUCTS[id]) n[id] = (n[id] ?? 0) + quantity; });
+      return n;
+    });
+    setAiBuddyOpen(false);
+    setView('cart');
+  }
 
   function openCategory(label: string) {
     if (PRODUCTS[label]) { setCategory(label); setView('category'); }
   }
 
-  if (view === 'cart')     return <CheckoutPage cart={cart} onInc={inc} onDec={dec} onBack={() => setView('home')} />;
-  if (view === 'category') return (
-    <CategoryPage
-      category={category} cart={cart}
-      onAdd={add} onInc={inc} onDec={dec}
-      onBack={() => setView('home')}
-      onViewCart={() => setView('cart')}
-    />
-  );
-
   return (
-    <HomePage
-      cart={cart} onAdd={add} onInc={inc} onDec={dec}
-      onViewCart={() => setView('cart')}
-      onCatClick={openCategory}
-    />
+    <div style={{ position:'relative', width:'100%', height:'100%' }}>
+      {view === 'cart' && <CheckoutPage cart={cart} onInc={inc} onDec={dec} onBack={() => setView('home')} />}
+      {view === 'category' && (
+        <CategoryPage
+          category={category} cart={cart}
+          onAdd={add} onInc={inc} onDec={dec}
+          onBack={() => setView('home')}
+          onViewCart={() => setView('cart')}
+        />
+      )}
+      {view === 'home' && (
+        <HomePage
+          cart={cart} onAdd={add} onInc={inc} onDec={dec}
+          onViewCart={() => setView('cart')}
+          onCatClick={openCategory}
+          onOpenAiBuddy={() => setAiBuddyOpen(true)}
+        />
+      )}
+      {aiBuddyOpen && view === 'home' && (
+        <AiBuddyPanel onClose={() => setAiBuddyOpen(false)} onBulkAdd={bulkAdd} />
+      )}
+    </div>
   );
 }
 
