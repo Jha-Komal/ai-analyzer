@@ -103,6 +103,13 @@ export class ReviewRepository {
     return { reviews: filtered, total };
   }
 
+  async findByIds(ids: string[]): Promise<(Review & { analysis: ReviewAnalysis | null })[]> {
+    return prisma.review.findMany({
+      where: { id: { in: ids } },
+      include: { analysis: true },
+    });
+  }
+
   async findUnanalyzed(): Promise<Review[]> {
     return prisma.review.findMany({
       where: {

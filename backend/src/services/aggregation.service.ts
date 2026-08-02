@@ -95,7 +95,15 @@ export class AggregationService {
 
     void analyzed; // suppress unused warning
 
+    const TREND_START = '2026-05';
+    const TREND_END = '2026-07';
+    const REQUIRED_MONTHS = ['2026-05', '2026-06', '2026-07'];
+    for (const m of REQUIRED_MONTHS) {
+      if (!trendByMonth[m]) trendByMonth[m] = { positive: 0, neutral: 0, negative: 0 };
+    }
+
     const sentimentTrend: SentimentTrendPoint[] = Object.entries(trendByMonth)
+      .filter(([month]) => month >= TREND_START && month <= TREND_END)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([month, counts]) => ({ month, ...counts }));
 

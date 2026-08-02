@@ -298,7 +298,7 @@ Use this exact structure:
 "Information required to answer this question more confidently"
 ],
 "supporting_review_ids": [
-"All unique review IDs used for this question"
+"Include 10 to 15 unique review IDs that most directly support the answer to this question. Prioritise reviews that contribute to key findings, counter-evidence, or behavioural chains. If fewer than 10 reviews are relevant, include all that are relevant."
 ],
 "confidence_score": 0.00,
 "confidence_reason": "Why this confidence level was assigned"
@@ -516,7 +516,8 @@ Before producing the JSON, verify:
 9. Mixed sentiment and contradictory evidence are preserved.
 10. Low-evidence questions receive lower confidence scores.
 11. Insights are separated from recommendations.
-12. The response contains valid parseable JSON only.
+12. Each question's \`supporting_review_ids\` array contains 10–15 review IDs (or all relevant IDs when fewer than 10 are available).
+13. The response contains valid parseable JSON only.
 
 Now analyse the following input:
 

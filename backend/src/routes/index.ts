@@ -61,6 +61,7 @@ export function createRouter(): Router {
   router.get('/insights', insightController.getInsights);
   router.get('/recommendations', recommendationController.getRecommendations);
   router.get('/reviews', reviewController.getReviews);
+  router.get('/reviews/by-ids', reviewController.getReviewsByIds);
   router.get('/reviews/:id', reviewController.getReviewById);
   router.get('/themes', statsController.getThemes);
   router.get('/pain-points', statsController.getPainPoints);

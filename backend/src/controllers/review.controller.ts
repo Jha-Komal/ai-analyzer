@@ -44,6 +44,25 @@ export class ReviewController {
     }
   };
 
+  getReviewsByIds = async (req: Request, res: Response): Promise<void> => {
+    const raw = req.query.ids;
+    if (!raw || typeof raw !== 'string') {
+      sendError(res, 'ids query param is required', HTTP_STATUS.BAD_REQUEST);
+      return;
+    }
+    const ids = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    if (ids.length === 0) {
+      sendError(res, 'ids must not be empty', HTTP_STATUS.BAD_REQUEST);
+      return;
+    }
+    try {
+      const reviews = await this.reviewRepo.findByIds(ids);
+      sendSuccess(res, reviews);
+    } catch (err) {
+      sendError(res, String(err), HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+  };
+
   getReviewById = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     try {

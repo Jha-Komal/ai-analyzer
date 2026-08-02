@@ -195,7 +195,7 @@ export class PipelineService {
 
       // Step 4: Generate insights
       statusService.setStatus('generating_insights', 80, 'Generating insights');
-      const analyzedSample = allReviews.filter((r) => r.analysis !== null).slice(0, 20);
+      const analyzedSample = allReviews.filter((r) => r.analysis !== null).slice(0, 200);
 
       const reviews = analyzedSample.map((r) => ({
         id: r.id,
