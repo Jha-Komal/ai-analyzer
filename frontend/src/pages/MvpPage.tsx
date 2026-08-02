@@ -1112,11 +1112,27 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
             </div>
           </div>
           <div style={{ paddingTop: 4, display:'flex', alignItems:'center', gap:8 }}>
-            <button onClick={onOpenAiBuddy}
-              title="AI Buddy"
-              style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#0C831F,#4CAF50)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 8px rgba(12,131,31,0.4)', flexShrink:0 }}>
-              <span style={{ fontSize:16 }}>🤖</span>
-            </button>
+            <style>{`
+              @keyframes aiBuddyRing {
+                0%   { transform: scale(1);   opacity: 0.75; }
+                100% { transform: scale(2);   opacity: 0; }
+              }
+              @keyframes aiBuddyBob {
+                0%,100% { transform: translateY(0); }
+                50%      { transform: translateY(-2px); }
+              }
+            `}</style>
+            <div style={{ position:'relative', width:34, height:34, flexShrink:0 }}>
+              {/* Pulsing ring 1 — yellow */}
+              <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #F8C22C', animation:'aiBuddyRing 1.6s ease-out infinite', pointerEvents:'none' }} />
+              {/* Pulsing ring 2 — green, offset */}
+              <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #0C831F', animation:'aiBuddyRing 1.6s ease-out 0.8s infinite', pointerEvents:'none' }} />
+              <button onClick={onOpenAiBuddy}
+                title="AI Buddy"
+                style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#F8C22C,#0C831F)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(248,194,44,0.55)', animation:'aiBuddyBob 2s ease-in-out infinite' }}>
+                <span style={{ fontSize:17 }}>🤖</span>
+              </button>
+            </div>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 18 }}>👤</span>
             </div>
