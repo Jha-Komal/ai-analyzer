@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -732,13 +733,8 @@ function CheckoutPage({ cart, onInc, onDec, onBack }: {
           category: Object.keys(PRODUCTS).find(cat => PRODUCTS[cat].some(p => p.id === product.id)) ?? 'General',
           weight: product.weight,
         }));
-        const res = await fetch('http://localhost:3001/api/cart-suggestion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cartItems: payload }),
-        });
-        const json = await res.json() as { success: boolean; data: AiSuggestion };
-        if (json.success) { setAiSugg(json.data); setAiSuggQty(0); }
+        const res = await api.post<{ success: boolean; data: AiSuggestion }>('/api/cart-suggestion', { cartItems: payload });
+        if (res.data.success) { setAiSugg(res.data.data); setAiSuggQty(0); }
       } catch {
         // silently ignore — suggestion is non-critical
       } finally {
