@@ -380,101 +380,113 @@ function pct(price: number, mrp: number) {
 
 // ─── AI Buddy ─────────────────────────────────────────────────────────────────
 
-const AI_PRESETS = [
-  { id:'movie',   emoji:'🎬', title:'Movie Night',     sub:'Munchies, drinks & more',         budget:800,  prompt:'movie night cart with chips, popcorn, coke and snacks' },
-  { id:'home',    emoji:'🏠', title:'New Home Setup',  sub:'Kitchen & cleaning essentials',   budget:1500, prompt:'new home setup with kitchen basics, cleaning supplies and daily essentials' },
-  { id:'fitness', emoji:'🏋️', title:'Fitness Pack',    sub:'Healthy snacks & proteins',       budget:600,  prompt:'fitness pack with protein rich foods, fruits and healthy snacks' },
-  { id:'morning', emoji:'☕', title:'Morning Routine', sub:'Breakfast & beverages',           budget:400,  prompt:'morning routine with bread, eggs, milk, tea or coffee and breakfast items' },
-  { id:'party',   emoji:'🎉', title:'Party Snacks',    sub:'Chips, drinks & chocolates',      budget:1000, prompt:'party snacks with chips, beverages, chocolates, namkeen and party essentials' },
-] as const;
+
+const QUICK_REPLIES = [
+  { id:'movie',   text:'Build me a movie night cart under ₹800',  prompt:'movie night cart with chips, popcorn, coke and snacks', budget:800 },
+  { id:'home',    text:'New home setup under ₹1,500',             prompt:'new home setup with kitchen basics, cleaning supplies and daily essentials', budget:1500 },
+  { id:'party',   text:'Party snacks under ₹1,000',              prompt:'party snacks with chips, beverages, chocolates, namkeen', budget:1000 },
+];
+
+type ChatMsg = { role: 'ai' | 'user'; text: string };
 
 function AiBuddyPanel({ onClose, onBulkAdd }: {
   onClose: () => void;
   onBulkAdd: (items: Array<{id: string; quantity: number}>) => void;
 }) {
-  const [loading, setLoading] = useState<string | null>(null);
-  const [error,   setError]   = useState<string | null>(null);
+  const [msgs,  setMsgs]  = useState<ChatMsg[]>([{ role:'ai', text:"Hey! 👋 What would you like me to build today?" }]);
+  const [phase, setPhase] = useState<'idle' | 'typing' | 'done'>('idle');
 
   const CATALOG = Object.entries(PRODUCTS).flatMap(([cat, prods]) =>
     prods.map(p => ({ id: p.id, name: p.name, price: p.price, category: cat }))
   );
 
-  async function pick(preset: typeof AI_PRESETS[number]) {
-    setLoading(preset.id);
-    setError(null);
+  async function pick(reply: typeof QUICK_REPLIES[0]) {
+    setMsgs(m => [...m, { role:'user', text: reply.text }]);
+    setPhase('typing');
     try {
       const res = await api.post<{ success: boolean; data: { items: Array<{id: string; quantity: number}> } }>(
         '/api/ai-cart',
-        { prompt: preset.prompt, budget: preset.budget, products: CATALOG }
+        { prompt: reply.prompt, budget: reply.budget, products: CATALOG }
       );
-      if (res.data.success && res.data.data.items.length > 0) {
-        onBulkAdd(res.data.data.items);
-      } else {
-        setError('AI couldn\'t build a cart. Try another option!');
-        setLoading(null);
-      }
+      const items = res.data.success ? res.data.data.items : [];
+      const count = items.length;
+      if (count === 0) throw new Error('empty');
+      setMsgs(m => [...m, { role:'ai', text:`Done! ✅ Added ${count} items to your cart. Taking you there...` }]);
+      setPhase('done');
+      setTimeout(() => onBulkAdd(items), 1400);
     } catch {
-      setError('Something went wrong. Try again!');
-      setLoading(null);
+      setMsgs(m => [...m, { role:'ai', text:"Oops! Something went wrong. Please try again 🙏" }]);
+      setPhase('idle');
     }
   }
 
   return (
     <div style={{ position:'absolute', inset:0, zIndex:50, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
-      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.5)' }} />
-      <div style={{ position:'relative', background:'#fff', borderRadius:'20px 20px 0 0', paddingBottom:20 }}>
+      <style>{`@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }`}</style>
+      {/* Backdrop */}
+      <div onClick={phase === 'idle' ? onClose : undefined} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} />
+
+      {/* Chat panel */}
+      <div style={{ position:'relative', display:'flex', flexDirection:'column', background:'#ECECEC', borderRadius:'20px 20px 0 0', maxHeight:'72%' }}>
         {/* Header */}
-        <div style={{ background:'linear-gradient(135deg,#0C831F,#4CAF50)', padding:'16px 16px 14px', borderRadius:'20px 20px 0 0' }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-              <div style={{ width:34, height:34, background:'rgba(255,255,255,0.2)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🤖</div>
-              <div>
-                <div style={{ fontSize:14, fontWeight:800, color:'#fff' }}>AI Buddy</div>
-                <div style={{ fontSize:9.5, color:'rgba(255,255,255,0.85)', fontWeight:500 }}>Powered by AI · Blinkit</div>
+        <div style={{ background:'linear-gradient(135deg,#0C831F,#43A047)', padding:'13px 14px', borderRadius:'20px 20px 0 0', display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
+          <div style={{ width:34, height:34, background:'rgba(255,255,255,0.22)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:19 }}>🤖</div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:800, color:'#fff', lineHeight:1.2 }}>AI Buddy</div>
+            <div style={{ fontSize:9, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>● Online · Powered by AI</div>
+          </div>
+          <button onClick={onClose} style={{ width:26, height:26, borderRadius:'50%', background:'rgba(255,255,255,0.18)', border:'none', cursor:'pointer', color:'#fff', fontSize:13, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+        </div>
+
+        {/* Messages */}
+        <div style={{ flex:1, overflowY:'auto', padding:'14px 10px 10px', display:'flex', flexDirection:'column', gap:8, scrollbarWidth:'none' }}>
+          {msgs.map((msg, i) => (
+            <div key={i} style={{ display:'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', alignItems:'flex-end', gap:6 }}>
+              {msg.role === 'ai' && <span style={{ fontSize:20, flexShrink:0, marginBottom:2 }}>🤖</span>}
+              <div style={{
+                maxWidth:'78%', padding:'9px 13px',
+                borderRadius: msg.role === 'user' ? '16px 16px 3px 16px' : '16px 16px 16px 3px',
+                background: msg.role === 'user' ? '#0C831F' : '#fff',
+                color: msg.role === 'user' ? '#fff' : '#1a1a1a',
+                fontSize:12, lineHeight:1.45, fontWeight:500,
+                boxShadow:'0 1px 2px rgba(0,0,0,0.1)',
+              }}>
+                {msg.text}
               </div>
             </div>
-            <button onClick={onClose} style={{ width:28, height:28, borderRadius:'50%', background:'rgba(255,255,255,0.2)', border:'none', cursor:'pointer', fontSize:14, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
-          </div>
-          <div style={{ marginTop:10, fontSize:12, color:'rgba(255,255,255,0.92)', fontWeight:600 }}>What are you planning today? 🛒</div>
-        </div>
-
-        <div style={{ padding:'12px 14px 0' }}>
-          {error && (
-            <div style={{ background:'#FEE2E2', borderRadius:8, padding:'8px 10px', fontSize:11, color:'#DC2626', marginBottom:8 }}>{error}</div>
-          )}
-          {AI_PRESETS.map(preset => (
-            <button
-              key={preset.id}
-              onClick={() => !loading && pick(preset)}
-              disabled={!!loading}
-              style={{
-                width:'100%', background: loading === preset.id ? '#F0FDF4' : '#fff',
-                border: loading === preset.id ? '1.5px solid #0C831F' : '1.5px solid #eee',
-                borderRadius:12, padding:'11px 14px', marginBottom:8,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display:'flex', alignItems:'center', gap:12, textAlign:'left',
-                opacity: loading && loading !== preset.id ? 0.45 : 1,
-              }}
-            >
-              <span style={{ fontSize:24, flexShrink:0 }}>{preset.emoji}</span>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:12, fontWeight:700, color:'#1a1a1a' }}>{preset.title}</div>
-                <div style={{ fontSize:10, color:'#555', marginTop:1 }}>{preset.sub}</div>
-              </div>
-              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:5, flexShrink:0 }}>
-                <span style={{ fontSize:9.5, fontWeight:700, color:'#0C831F', background:'#E8F5E9', borderRadius:6, padding:'2px 7px' }}>under ₹{preset.budget}</span>
-                {loading === preset.id
-                  ? <div style={{ width:16, height:16, border:'2px solid #C8E6C9', borderTopColor:'#0C831F', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
-                  : <span style={{ fontSize:14, color:'#0C831F', fontWeight:700 }}>›</span>
-                }
-              </div>
-            </button>
           ))}
-        </div>
 
-        <div style={{ padding:'2px 14px 0', display:'flex', alignItems:'center', gap:5 }}>
-          <span style={{ fontSize:9 }}>✨</span>
-          <span style={{ fontSize:9.5, color:'#888' }}>AI picks the best items for you instantly</span>
+          {/* Typing dots */}
+          {phase === 'typing' && (
+            <div style={{ display:'flex', alignItems:'flex-end', gap:6 }}>
+              <span style={{ fontSize:20, flexShrink:0 }}>🤖</span>
+              <div style={{ background:'#fff', borderRadius:'16px 16px 16px 3px', padding:'11px 14px', boxShadow:'0 1px 2px rgba(0,0,0,0.1)', display:'flex', gap:5, alignItems:'center' }}>
+                {[0, 0.18, 0.36].map((delay, i) => (
+                  <div key={i} style={{ width:7, height:7, borderRadius:'50%', background:'#999', animation:`bounce 1s ease-in-out ${delay}s infinite` }} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick reply chips — shown only before user picks */}
+          {phase === 'idle' && msgs.length === 1 && (
+            <div style={{ display:'flex', flexDirection:'column', gap:7, marginTop:4, paddingLeft:34 }}>
+              {QUICK_REPLIES.map(reply => (
+                <button
+                  key={reply.id}
+                  onClick={() => pick(reply)}
+                  style={{
+                    background:'#fff', border:'1.5px solid #0C831F', borderRadius:20,
+                    padding:'9px 14px', fontSize:12, color:'#0C831F', fontWeight:600,
+                    cursor:'pointer', textAlign:'left', boxShadow:'0 1px 3px rgba(0,0,0,0.07)',
+                    width:'fit-content', maxWidth:'100%',
+                  }}
+                >
+                  {reply.text}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
