@@ -1,16 +1,10 @@
 import { prisma } from '../lib/prisma';
 import { Recommendation } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { ValidatedRecommendation } from '../validators/recommendation.validator';
 
 export class RecommendationRepository {
-  async createMany(
-    recommendations: Array<{
-      priority: string;
-      title: string;
-      description: string;
-    }>
-  ): Promise<void> {
-    // Clear old recommendations before inserting new ones
+  async createMany(recommendations: ValidatedRecommendation[]): Promise<void> {
     await prisma.recommendation.deleteMany();
 
     await prisma.recommendation.createMany({
@@ -19,6 +13,10 @@ export class RecommendationRepository {
         priority: r.priority,
         title: r.title,
         description: r.description,
+        categoryExpansionRelevance: r.category_expansion_relevance,
+        basedOnQuestionIds: JSON.stringify(r.based_on_question_ids),
+        supportingFindingRefs: JSON.stringify(r.supporting_finding_refs),
+        supportingReviewIds: JSON.stringify(r.supporting_review_ids),
       })),
     });
   }

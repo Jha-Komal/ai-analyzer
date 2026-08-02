@@ -2,6 +2,7 @@ import { ZapIcon, TrendingUpIcon, AlertTriangleIcon, ClockIcon } from 'lucide-re
 import { Loader } from '../components/shared/Loader';
 import { ErrorState } from '../components/shared/ErrorState';
 import { EmptyState } from '../components/shared/EmptyState';
+import { CategoryExpansionBadge } from '../components/insights/CategoryExpansionBadge';
 import { useRecommendations } from '../hooks/useRecommendations';
 import type { Recommendation, RecommendationPriority } from '../types/recommendation';
 import { cn } from '../lib/utils';
@@ -76,6 +77,17 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
       <div className="space-y-2">
         <h4 className="text-base font-bold text-foreground leading-snug">{rec.title}</h4>
         <p className="text-sm text-muted-foreground leading-relaxed">{rec.description}</p>
+      </div>
+      <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
+        <CategoryExpansionBadge relevance={rec.categoryExpansionRelevance} />
+        {rec.basedOnQuestionIds.length > 0 && (
+          <p className="text-xs text-muted-foreground">
+            Based on {rec.supportingFindingRefs.length || rec.basedOnQuestionIds.length} finding
+            {(rec.supportingFindingRefs.length || rec.basedOnQuestionIds.length) !== 1 ? 's' : ''} across Q
+            {rec.basedOnQuestionIds.join(', Q')} · {rec.supportingReviewIds.length} supporting review
+            {rec.supportingReviewIds.length !== 1 ? 's' : ''}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -71,7 +71,7 @@ const STEPS = [
     step: '04',
     title: 'Evidence-Based Insight Generation',
     description:
-      'Aggregated stats and a sample of reviews are passed to the OpenAI API to answer 8 research questions. The prompt is designed to return evidence-grounded answers only, no invented reasoning.',
+      'A stratified sample (drawn proportionally across source and sentiment, not just the first N reviews) plus full-corpus aggregated stats are passed to the OpenAI API to answer 8 research questions. Every finding is scored for evidence strength across 5 weighted components and classified by relevance to category expansion.',
     details: [
       'Why do users stick to the same categories?',
       'What stops them from exploring new ones?',
@@ -82,7 +82,7 @@ const STEPS = [
       'Which segments are more open to experimenting?',
       'What unmet needs appear consistently?',
     ],
-    badge: '8 research questions answered',
+    badge: '8 research questions, evidence-scored',
   },
   {
     icon: SparklesIcon,
@@ -104,10 +104,13 @@ const STEPS = [
 ];
 
 const VALIDATION = [
-  { label: 'Confidence scores', desc: 'Every insight carries a confidence score based on evidence density' },
-  { label: 'Supporting review IDs', desc: 'Each finding links back to the specific reviews used as evidence' },
-  { label: 'Key findings ranked', desc: 'Findings within each insight are ranked by strength of evidence' },
-  { label: 'Evidence type labelled', desc: 'Direct and inferred findings are explicitly separated' },
+  { label: 'Evidence-strength scoring', desc: 'Every finding is scored from 5 weighted components (evidence volume, relevance, source diversity, consistency, quality) — not a single self-reported number' },
+  { label: 'Category-expansion relevance', desc: 'Every finding is classified as a direct, indirect, or unrelated signal for category expansion before it counts as evidence' },
+  { label: 'Stratified sampling', desc: 'The review sample is drawn proportionally across source and sentiment, not just the first N reviews loaded' },
+  { label: 'Supporting review IDs', desc: 'Each finding links back to specific reviews — IDs are cross-checked against the actual sample and stripped if hallucinated' },
+  { label: 'Direct vs. inferred evidence', desc: 'Every claim is labelled as directly stated, reasonably inferred, or insufficiently supported' },
+  { label: 'Counter-evidence tracked', desc: 'Contradicting reviews and evidence gaps are captured alongside each answer, not discarded' },
+  { label: 'Cited recommendations', desc: 'Every recommendation traces back to the specific question and finding it is based on' },
 ];
 
 export function WorkflowPage() {

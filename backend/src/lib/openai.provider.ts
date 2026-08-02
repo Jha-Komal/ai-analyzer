@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { AIProvider } from './ai-provider.interface';
+import { AICompleteOptions, AIProvider } from './ai-provider.interface';
 import { config } from '../config';
 
 export class OpenAIProvider implements AIProvider {
@@ -11,7 +11,7 @@ export class OpenAIProvider implements AIProvider {
     });
   }
 
-  async complete(prompt: string): Promise<string> {
+  async complete(prompt: string, options?: AICompleteOptions): Promise<string> {
     const response = await this.client.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -26,7 +26,7 @@ export class OpenAIProvider implements AIProvider {
         },
       ],
       temperature: 0.2,
-      max_tokens: 6000,
+      max_tokens: options?.maxTokens ?? 6000,
       response_format: { type: 'json_object' },
     });
 

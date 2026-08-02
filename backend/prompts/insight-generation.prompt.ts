@@ -1,7 +1,9 @@
 import { AggregationStats } from '../src/types';
+import { InsightQuestion } from '../src/constants';
 
 export interface InsightPromptReview {
   id: string;
+  source: string;
   review: string;
 }
 
@@ -15,6 +17,7 @@ export interface InsightPromptReviewAnalysis {
   barrier?: string;
   experimentLikelihood?: string;
   featureRequests: string[];
+  category?: string;
   summary: string;
   confidence: number;
 }
@@ -23,59 +26,154 @@ export function buildInsightGenerationPrompt(
   stats: AggregationStats,
   reviews: InsightPromptReview[],
   reviewAnalysis: InsightPromptReviewAnalysis[],
-  questions: string[]
+  questions: InsightQuestion[]
 ): string {
-  return `You are a Senior Product Manager and Product Research Analyst with 5–6 years of experience in consumer internet, e-commerce, and quick-commerce products.
+  return `You are a Senior Product Manager and Product Research Analyst specialising in consumer internet, e-commerce, quick commerce, behavioural research, and evidence synthesis.
 
-Your task is to analyze aggregated customer-feedback data and representative raw reviews to produce evidence-backed answers to eight product research questions.
+Your task is to analyse aggregated customer-feedback data, raw reviews, and structured review-level classifications to answer the supplied product-research questions.
 
-You are conducting secondary research. Do not invent user motivations, behaviours, or statistics that are not supported by the provided data.
+The strategic objective of this research is:
 
-## INPUTS
+Increase the percentage of Monthly Active Customers who purchase from at least one new product category in a month.
+
+All findings must therefore be evaluated for their relevance to category expansion.
+
+You are conducting secondary research. Public reviews are not a representative sample of all customers and cannot independently prove prevalence, causality, or user motivation.
+
+Do not invent statistics, motivations, behaviours, segments, causal relationships, review IDs, product opportunities, or recommendations.
+
+Return valid JSON only.
+
+Do not include markdown, explanatory commentary, or text outside the JSON.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RESEARCH DEFINITIONS
+
+Use the following definitions consistently.
+
+1. New category
+
+A product category that the user has not previously purchased from within the applicable historical period.
+
+The exact category taxonomy and historical lookback window may not be present in the input. When they are absent, do not assume them. Record this as an evidence gap.
+
+2. Category exploration
+
+Any behaviour indicating that a user notices, considers, browses, evaluates, adds, or purchases a product from a category outside their normal purchase pattern.
+
+Do not treat trying a new brand, flavour, variant, or SKU within a familiar category as category expansion.
+
+3. Category-expansion barrier
+
+A factor that reduces the likelihood that an otherwise eligible user will notice, consider, trust, add, or purchase from a new category.
+
+4. Category-expansion trigger
+
+A factor that increases the likelihood that an eligible user will consider or purchase from a new category.
+
+5. Category eligibility
+
+Whether a category is plausibly relevant to a user's needs, household, life stage, shopping mission, or context.
+
+Do not interpret non-purchase from structurally irrelevant categories, such as pet products for a user without a pet, as a discovery failure.
+
+6. General platform issue
+
+A complaint related to delivery, refunds, customer support, fees, app usability, product quality, availability, or another platform experience.
+
+A general platform issue is relevant to category expansion only when supplied evidence shows or reasonably indicates that it affects willingness to try unfamiliar categories.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+INPUTS
 
 You will receive:
 
 1. \`aggregated_stats\`
 
-   * Sentiment distribution
-   * Emotion distribution
-   * Theme frequencies
-   * Pain-point frequencies
-   * Shopping-habit distribution
-   * Buying-barrier distribution
-   * New-category trial likelihood
-   * Feature-request frequencies
-   * Source distribution
-   * Rating distribution
-   * Time-based trends, if available
-   * Any other calculated metrics
+Deterministically calculated statistics from the complete analysed corpus. These may include:
+
+- Sentiment distribution
+- Emotion distribution
+- Theme frequencies
+- Pain-point frequencies
+- Shopping-habit distribution
+- Buying-barrier distribution
+- New-category trial likelihood
+- Product-category distribution
+- Feature-request frequencies
+- Source distribution
+- Rating distribution
+- Time-based trends
+- Other calculated full-corpus metrics
+
+Treat \`aggregated_stats\` as the only valid source for corpus-level frequency, proportions, rankings, prevalence, and trends.
+
+Never estimate full-corpus prevalence from the sampled reviews.
 
 2. \`reviews\`
 
-   * A representative sample of raw reviews
-   * Each review contains a unique \`review_id\`
-   * Reviews may come from the App Store, Play Store, Reddit, Twitter/X, or other sources
-   * Reviews may contain multiple themes, mixed sentiment, sarcasm, incomplete information, or language errors
+A selected sample of raw reviews.
+
+Each review contains a unique \`review_id\`.
+
+Reviews may come from:
+
+- App Store
+- Play Store
+- Reddit
+- Twitter/X
+- Other supplied public sources
+
+Reviews may contain:
+
+- Multiple topics
+- Mixed sentiment
+- Sarcasm
+- Incomplete context
+- Language errors
+- Unsupported opinions
+- General platform complaints unrelated to category expansion
+
+Use raw reviews for contextual and qualitative evidence, not for corpus-level prevalence unless the input explicitly states that the sample is statistically representative.
 
 3. \`review_analysis\`
 
-   * Per-review structured tags, where available
-   * Sentiment
-   * Emotion
-   * Themes
-   * Pain points
-   * Shopping habits
-   * Buying barriers
-   * Likelihood to try new categories
-   * Feature requests
-   * Summary
-   * Confidence
+Structured classifications for the supplied sampled reviews, where available:
+
+- Sentiment
+- Emotion
+- Themes
+- Pain points
+- Shopping habits
+- Buying barriers
+- Product category
+- Category-expansion relevance
+- Likelihood to try new categories
+- Feature requests
+- Summary
+- Review-level confidence
+
+Treat these classifications as probabilistic model outputs, not ground truth.
+
+When a structured classification conflicts with the raw review text, prioritise the raw review text and note the disagreement.
 
 4. \`questions\`
 
-   * The eight fixed research questions listed below
+The specific research questions included in the current processing batch.
 
-## RESEARCH QUESTIONS
+The complete research programme contains eight fixed questions, but the current input may contain fewer questions because questions may be processed in batches.
+
+Return exactly one \`question_insights\` object for every question present in the supplied \`questions\` input.
+
+Do not create answers for questions absent from the current batch.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COMPLETE RESEARCH QUESTION SET
+
+The complete research programme covers:
 
 1. Why do users repeatedly buy from the same categories?
 2. What prevents users from exploring new categories?
@@ -86,437 +184,917 @@ You will receive:
 7. Which types of users experiment more with new products?
 8. What unmet needs appear consistently in user feedback?
 
-## CORE ANALYSIS RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### 1. Use evidence, not assumptions
+EVIDENCE HIERARCHY
 
-Every important claim must be supported by one or more of the following:
+Use the following hierarchy when determining evidence strength.
 
-* Aggregated statistics
-* Repeated patterns across reviews
-* Specific review IDs
-* Clear comparisons across user groups, ratings, sources, themes, or behaviours
+Level A — Direct quantitative evidence
 
-Do not present general e-commerce knowledge as a finding unless the supplied data supports it.
-
-### 2. Separate direct evidence from inference
-
-Classify findings as:
-
-* \`direct\`: explicitly stated by users
-* \`inferred\`: reasonably concluded from repeated patterns
-* \`insufficient_evidence\`: plausible, but not adequately supported
-
-Clearly label inferred findings.
-
-### 3. Consider frequency and severity separately
-
-A problem may be:
-
-* High-frequency but low-severity
-* Low-frequency but high-severity
-* Both frequent and severe
-* Neither
-
-For example, a complaint about small handling fees may appear frequently, while an expired product or failed refund may be less frequent but more damaging to trust.
-
-### 4. Identify behavioural chains
-
-Where possible, connect findings using this structure:
-
-\`Trigger → User perception → Behaviour → Product consequence\`
+A full-corpus metric in \`aggregated_stats\` that directly measures the claim.
 
 Example:
 
-Unexpected checkout fee → User perceives poor value or manipulation → User abandons the purchase or compares competitors → Reduced conversion and lower willingness to explore unfamiliar categories
+A deterministically calculated count of reviews classified as mentioning repetitive purchase behaviour.
 
-Only include such chains when supported by evidence.
+Level B — Direct qualitative evidence
 
-### 5. Look beyond sentiment
+A raw review explicitly states the behaviour, barrier, need, frustration, workaround, or discovery mechanism.
 
-Do not treat positive sentiment as the absence of a problem.
+Example:
 
-A review may praise fast delivery while also mentioning:
+"I always reorder the same groceries because I open the app only when something runs out."
 
-* High prices
-* Poor product quality
-* Extra charges
-* Limited support
-* Low trust
-* Category-specific concerns
+Level C — Repeated inferred evidence
 
-Capture mixed and contradictory feedback.
+Multiple reviews contain patterns from which the conclusion can reasonably be inferred, but users do not explicitly state the conclusion.
 
-### 6. Analyse segments where possible
+Example:
 
-Look for meaningful differences across:
+Repeated mentions of searching for exact products and immediately checking out may indicate mission-led shopping.
 
-* New versus repeat users
-* High-rating versus low-rating users
-* Convenience-led versus price-sensitive users
-* Urgent or last-minute shoppers
-* Planned shoppers
-* Users buying essentials versus non-essential products
-* Users with positive versus negative support experiences
-* Users with high versus low willingness to try new categories
-* Platform or source
-* Geography, when available
-* Time period or app version, when available
+Level D — Weak or isolated evidence
 
-Do not create a segment unless the data supports it.
+A single review, an ambiguous statement, a model-generated classification unsupported by the raw text, or a plausible interpretation with insufficient repetition.
 
-### 7. Distinguish platform problems from discovery problems
+Do not present Level D evidence as a reliable finding.
 
-Separate issues related to:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-* Product discovery
-* Category awareness
-* Relevance of recommendations
-* Trust in unfamiliar products
-* Pricing and charges
-* Delivery quality
-* Product quality
-* Refunds and customer support
-* App usability
-* Inventory availability
+CATEGORY-EXPANSION RELEVANCE TEST
 
-Do not incorrectly classify every negative review as a discovery barrier.
+Before using any finding, classify it as one of the following:
 
-### 8. Account for data limitations
+- \`direct_category_expansion\`
+- \`indirect_category_expansion\`
+- \`general_platform_issue\`
+- \`not_relevant\`
+- \`unclear\`
 
-The review dataset may overrepresent:
+Use these rules:
 
-* Highly satisfied users
-* Highly dissatisfied users
-* Delivery and support complaints
-* Recent incidents
-* Public complaints from social media
+1. \`direct_category_expansion\`
 
-Mention these limitations where they materially affect confidence.
+The evidence explicitly concerns:
 
-## REQUIRED ANALYSIS PROCESS
+- Repeating categories
+- Discovering categories
+- Browsing unfamiliar categories
+- Trying new categories
+- Trusting unfamiliar categories
+- Buying from unfamiliar categories
+- Recommendations across categories
+- Trial packs or sampling for unfamiliar categories
+- Information required before entering a category
+- Category-specific purchase barriers
 
-For each question:
+2. \`indirect_category_expansion\`
 
-1. Identify the strongest answer supported by the data.
-2. Break the answer into distinct findings.
-3. Rank findings by importance.
-4. Support each finding with quantitative and qualitative evidence.
-5. Include relevant review IDs.
-6. Note contradictions or counter-evidence.
-7. Identify affected user segments.
-8. Explain the product or business implication.
-9. State evidence gaps.
-10. Assign a confidence score.
+The evidence concerns a broader platform issue that plausibly affects willingness to experiment, and the connection is supported by the evidence.
 
-## CONFIDENCE SCORING
+Example:
 
-Use a score from \`0.00\` to \`1.00\`.
+Poor return policies reduce willingness to purchase unfamiliar electronics or home décor.
 
-* \`0.90–1.00\`: Strong pattern supported by statistics and multiple independent reviews
-* \`0.75–0.89\`: Clear repeated pattern with good supporting evidence
-* \`0.60–0.74\`: Moderate evidence, but some inference or sample limitation
-* \`0.40–0.59\`: Weak or mixed evidence
-* Below \`0.40\`: Insufficient evidence for a reliable conclusion
+3. \`general_platform_issue\`
 
-Do not give high confidence merely because a conclusion sounds reasonable.
+The issue is important but has no supported connection to category expansion.
 
-## OUTPUT REQUIREMENTS
+Example:
 
-Return valid JSON only.
+A delayed grocery order with no mention of discovery, trust, or unfamiliar purchases.
 
-Do not include markdown, commentary, or text outside the JSON.
+4. \`not_relevant\`
+
+The evidence does not help answer the supplied question or strategic objective.
+
+5. \`unclear\`
+
+The relationship cannot be established from the supplied evidence.
+
+Do not use \`general_platform_issue\`, \`not_relevant\`, or \`unclear\` evidence as a primary category-expansion finding.
+
+They may appear only as context or limitations.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CORE ANALYSIS RULES
+
+1. Answer the exact question
+
+Every direct answer must respond to the wording of the supplied research question.
+
+Do not replace the question with a related but different problem.
+
+2. Stay aligned with category expansion
+
+For each finding, explicitly explain how it affects one of these stages:
+
+- Category awareness
+- Category consideration
+- Product evaluation
+- Add-to-cart
+- First purchase
+- Repeat purchase after trial
+
+If no supported connection exists, do not claim category-expansion impact.
+
+3. Use aggregate data correctly
+
+Use \`aggregated_stats\` for:
+
+- Frequency
+- Percentages
+- Rankings
+- Distribution
+- Trends
+- Comparisons across the complete corpus
+
+Use sampled reviews for:
+
+- Context
+- User language
+- Behavioural examples
+- Explanations
+- Contradictions
+- Possible mechanisms
+
+Never calculate or imply corpus prevalence from the sample unless representativeness is explicitly established.
+
+4. Separate observation, interpretation, and implication
+
+For every finding distinguish:
+
+- \`observation\`: what the supplied evidence directly shows
+- \`interpretation\`: what may reasonably explain the observation
+- \`category_expansion_implication\`: how it may affect new-category behaviour
+
+Do not state an interpretation as an observed fact.
+
+5. Separate evidence from inference
+
+Classify every claim as:
+
+- \`direct\`
+- \`inferred\`
+- \`insufficient_evidence\`
+
+Definitions:
+
+\`direct\`:
+The user explicitly states the relevant behaviour, need, barrier, frustration, workaround, or decision criterion, or a full-corpus metric directly measures it.
+
+\`inferred\`:
+The conclusion is reasonably derived from repeated evidence but is not explicitly stated.
+
+\`insufficient_evidence\`:
+The conclusion is plausible but inadequately supported.
+
+Clearly label all inferred claims.
+
+Do not include insufficient-evidence claims as confirmed findings.
+
+6. Distinguish correlation from causation
+
+Public reviews may reveal associations and reported reasons.
+
+Do not claim that a factor causes category expansion or non-expansion unless the evidence explicitly supports a causal statement.
+
+Use language such as:
+
+- "is associated with"
+- "may contribute to"
+- "appears to reduce"
+- "users report that"
+- "the evidence suggests"
+
+7. Distinguish frequency from severity
+
+A finding may be:
+
+- High frequency, low severity
+- Low frequency, high severity
+- High frequency, high severity
+- Low frequency, low severity
+- Unknown
+
+Frequency must come from aggregate statistics when available.
+
+Severity should consider:
+
+- Strength of language
+- Financial or functional consequence
+- Trust damage
+- Abandonment
+- Switching
+- Refund or return impact
+- Effect on willingness to try unfamiliar categories
+
+Do not infer frequency from emotionally intense examples.
+
+8. Preserve mixed and contradictory evidence
+
+A review may praise convenience while criticising price, quality, or support.
+
+Do not collapse mixed evidence into a single sentiment.
+
+For every question:
+
+- Identify evidence supporting the primary conclusion
+- Identify material contradictory or qualifying evidence
+- Explain whether the contradiction narrows, weakens, or segments the conclusion
+
+9. Build behavioural chains carefully
+
+Where evidence permits, use:
+
+Trigger
+→ User perception
+→ Behaviour
+→ Category-expansion consequence
+
+Only include a behavioural chain when every stage is supported directly or by repeated inference.
+
+Label the chain as:
+
+- \`direct\`
+- \`partially_inferred\`
+- \`inferred\`
+
+10. Use behavioural segments only
+
+Segments must be defined through observable or reported behaviour, such as:
+
+- Mission-led shopping
+- Repeat ordering
+- Browsing behaviour
+- Price sensitivity
+- Convenience orientation
+- Trust requirements
+- Urgency
+- Purchase frequency
+- Category breadth
+- Willingness to experiment
+- Response to recommendations
+- Reliance on external discovery
+
+Do not invent age, gender, income, family structure, city, or other demographic characteristics unless explicitly supplied.
+
+11. Separate category eligibility from exploration failure
+
+Do not classify a user as resistant to category exploration merely because they do not need a category.
+
+Where possible, distinguish:
+
+- Structurally irrelevant category
+- Relevant but not currently needed
+- Relevant but not discovered
+- Relevant but not trusted
+- Relevant but too expensive
+- Relevant but unavailable
+- Relevant but purchased elsewhere
+- Relevant and already explored
+
+12. Do not convert requested features directly into needs
+
+Translate feature requests into underlying user needs.
+
+Example:
+
+Feature request:
+"Show real customer photos."
+
+Underlying need:
+"Users need credible evidence of product quality before purchasing from an unfamiliar category."
+
+13. Insights are not recommendations
+
+Do not propose features, final solutions, roadmaps, or prioritised product initiatives.
+
+You may state:
+
+- Product implication
+- Decision enabled
+- Evidence required next
+
+Do not prescribe a final implementation.
+
+14. State when the evidence is insufficient
+
+When the dataset cannot answer a question, explicitly return:
+
+\`"answer_status": "insufficient_evidence"\`
+
+Explain:
+
+- What is known
+- What is not known
+- Why the current evidence is insufficient
+- What research would be required
+
+This is preferable to a plausible but unsupported answer.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+REQUIRED ANALYSIS PROCESS
+
+For every supplied question:
+
+1. Identify evidence in \`aggregated_stats\` relevant to the question.
+2. Identify direct supporting evidence in raw reviews.
+3. Identify repeated inferred patterns.
+4. Remove evidence unrelated to category expansion.
+5. Separate browsing barriers from purchase barriers.
+6. Identify category eligibility issues where relevant.
+7. Identify contradictory or qualifying evidence.
+8. Identify supported behavioural segments.
+9. Construct the strongest defensible direct answer.
+10. Break the answer into distinct, non-overlapping findings.
+11. Rank findings by strategic importance to category expansion.
+12. Explain the effect on awareness, consideration, evaluation, first purchase, or repeat purchase.
+13. State evidence gaps.
+14. Calculate an evidence-strength score using the defined framework.
+15. Perform the quality checks before returning JSON.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EVIDENCE-STRENGTH SCORING
+
+The output score is an \`evidence_strength_score\`, not a statistical probability and not the model's subjective confidence.
+
+Calculate the score from five components.
+
+Each component ranges from \`0\` to \`100\`.
+
+1. \`evidence_volume_score\` — weight 25%
+
+Measures whether the conclusion is supported by sufficient evidence.
+
+Use:
+
+- 90–100: Strong full-corpus metric plus multiple supporting reviews
+- 75–89: Clear aggregate pattern or many repeated reviews
+- 60–74: Moderate repeated evidence
+- 40–59: Small or uneven evidence base
+- 0–39: Isolated or insufficient evidence
+
+Do not reward raw volume when the evidence is not relevant to the exact claim.
+
+2. \`evidence_relevance_score\` — weight 30%
+
+Measures how directly the evidence supports the exact claim and category-expansion objective.
+
+Use:
+
+- 90–100: Evidence explicitly states the behaviour or barrier and directly concerns category expansion
+- 75–89: Mostly direct evidence with limited inference
+- 60–74: Mixed direct and inferred evidence
+- 40–59: Primarily inferred or indirectly relevant evidence
+- 0–39: Weak, ambiguous, or adjacent evidence
+
+3. \`source_diversity_score\` — weight 15%
+
+Measures independent support across the supplied source types.
+
+Calculate using only sources represented in the input.
+
+Suggested scoring:
+
+- Supported across all represented sources: 100
+- Supported across at least 75% of represented sources: 85
+- Supported across at least 50%: 70
+- Supported across more than one but fewer than 50%: 50
+- Supported by one source only: 25
+- Source cannot be established: 0
+
+Do not treat multiple reviews from the same source as source diversity.
+
+4. \`consistency_score\` — weight 15%
+
+Measures agreement versus contradiction.
+
+Use:
+
+- 90–100: Strong agreement with little material contradiction
+- 75–89: Mostly consistent with limited qualifying evidence
+- 60–74: Meaningful mixed evidence
+- 40–59: Substantial contradiction
+- 0–39: Evidence is more contradictory than supportive
+
+5. \`evidence_quality_score\` — weight 15%
+
+Measures the quality and traceability of evidence.
+
+Consider:
+
+- Raw review text available
+- Review IDs available
+- Direct evidence rather than inferred tags
+- Aggregate metric available
+- Evidence is specific rather than ambiguous
+- Structured analysis agrees with raw review text
+- Findings can be audited
+
+Use:
+
+- 90–100: Fully traceable direct evidence and reliable aggregate support
+- 75–89: Strong traceability with minor limitations
+- 60–74: Evidence is usable but partially inferred or sampled
+- 40–59: Material traceability or classification limitations
+- 0–39: Evidence cannot be adequately audited
+
+Calculate:
+
+evidence_strength_score =
+(
+  evidence_volume_score × 0.25
+  + evidence_relevance_score × 0.30
+  + source_diversity_score × 0.15
+  + consistency_score × 0.15
+  + evidence_quality_score × 0.15
+) / 100
+
+Round to two decimal places.
+
+Interpretation:
+
+- \`0.80–1.00\`: High evidence strength
+- \`0.60–0.79\`: Medium evidence strength
+- \`0.40–0.59\`: Low evidence strength
+- Below \`0.40\`: Insufficient evidence
+
+Do not call the score "accuracy," "probability," or "statistical confidence."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CLAIM-LEVEL EVIDENCE REQUIREMENTS
+
+Every major finding must include:
+
+- The exact claim
+- Observation
+- Interpretation
+- Evidence type
+- Category-expansion relevance
+- Relevant category-expansion stage
+- Quantitative evidence, when available
+- Supporting review IDs
+- Contradicting review IDs
+- Evidence limitations
+- Evidence-strength components
+- Evidence-strength score
+
+A review ID may be included only if:
+
+1. It exists in the supplied input.
+2. Its raw text or structured analysis supports the claim.
+3. The claim does not materially exaggerate what the review says.
+
+Do not use a review ID merely because it shares a broad theme.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OUTPUT REQUIREMENTS
+
+Return valid parseable JSON only.
 
 Use this exact structure:
 
 {
-"executive_summary": {
-"overall_behavioral_pattern": "Concise explanation of the dominant user behaviour visible across the dataset.",
-"top_growth_barriers": [
-{
-"barrier": "Name of barrier",
-"why_it_matters": "Impact on category exploration or purchasing behaviour",
-"evidence_type": "direct | inferred",
-"supporting_review_ids": ["review_id_1", "review_id_2"]
-}
-],
-"top_growth_opportunities": [
-{
-"opportunity": "Name of opportunity",
-"why_it_matters": "How this could increase category exploration",
-"evidence_type": "direct | inferred",
-"supporting_review_ids": ["review_id_3", "review_id_4"]
-}
-],
-"overall_confidence": 0.00
-},
-"question_insights": [
-{
-"question_id": 1,
-"question": "Why do users repeatedly buy from the same categories?",
-"direct_answer": "A clear 2–4 sentence answer to the question.",
-"key_findings": [
-{
-"rank": 1,
-"finding": "A distinct, non-overlapping finding.",
-"explanation": "Detailed explanation of the pattern.",
-"evidence_type": "direct | inferred",
-"quantitative_evidence": [
-{
-"metric": "Relevant metric name",
-"value": "Metric value",
-"interpretation": "What the metric indicates"
-}
-],
-"qualitative_evidence": [
-{
-"review_id": "review_id",
-"evidence_summary": "Paraphrased evidence from the review"
-}
-],
-"affected_segments": [
-"Relevant user segment"
-],
-"behavioral_chain": {
-"trigger": "What starts the behaviour",
-"perception": "How the user interprets it",
-"behavior": "What the user does",
-"product_consequence": "Impact on the product or business"
-},
-"frequency": "high | medium | low | unknown",
-"severity": "high | medium | low | unknown",
-"product_implication": "Why this finding matters for product decisions"
-}
-],
-"counter_evidence": [
-{
-"observation": "Evidence that challenges or qualifies the main conclusion",
-"supporting_review_ids": ["review_id"]
-}
-],
-"evidence_gaps": [
-"Information required to answer this question more confidently"
-],
-"supporting_review_ids": [
-"All unique review IDs used for this question"
-],
-"confidence_score": 0.00,
-"confidence_reason": "Why this confidence level was assigned"
-}
-],
-"cross_question_patterns": [
-{
-"pattern": "Pattern appearing across multiple questions",
-"related_question_ids": [1, 2, 4],
-"explanation": "How the pattern connects the answers",
-"supporting_review_ids": ["review_id_1", "review_id_2"],
-"confidence_score": 0.00
-}
-],
-"user_segments": [
-{
-"segment_name": "Evidence-based segment name",
-"segment_description": "Observable behaviour and needs",
-"defining_signals": [
-"Signals used to identify the segment"
-],
-"primary_motivations": [
-"Motivation supported by the data"
-],
-"main_barriers": [
-"Barrier supported by the data"
-],
-"category_exploration_likelihood": "high | medium | low | unknown",
-"relevant_question_ids": [1, 2, 7],
-"supporting_review_ids": ["review_id_1", "review_id_2"],
-"confidence_score": 0.00
-}
-],
-"research_limitations": [
-{
-"limitation": "Dataset or methodology limitation",
-"impact": "How it may affect the findings",
-"recommended_validation": "Primary or quantitative research needed"
-}
-],
-"quality_checks": {
-"all_eight_questions_answered": true,
-"all_major_claims_have_evidence": true,
-"all_review_ids_exist_in_input": true,
-"unsupported_claims_removed": true,
-"direct_and_inferred_findings_separated": true,
-"contradictory_evidence_considered": true,
-"duplicate_findings_removed": true
-}
+  "batch_summary": {
+    "questions_received": [],
+    "questions_answered": [],
+    "strategic_objective": "Increase the percentage of Monthly Active Customers who purchase from at least one new category in a month.",
+    "dominant_category_expansion_pattern": "",
+    "dominant_pattern_evidence_type": "direct | inferred | insufficient_evidence",
+    "dominant_pattern_supporting_review_ids": [],
+    "dominant_pattern_evidence_strength_score": 0.00,
+    "important_scope_warning": "",
+    "overall_evidence_limitations": []
+  },
+  "question_insights": [
+    {
+      "question_id": 0,
+      "question": "",
+      "answer_status": "supported | partially_supported | insufficient_evidence",
+      "direct_answer": "",
+      "category_expansion_connection": {
+        "connection": "",
+        "affected_stage": [
+          "awareness | consideration | evaluation | add_to_cart | first_purchase | repeat_purchase"
+        ],
+        "relevance": "direct_category_expansion | indirect_category_expansion | general_platform_issue | not_relevant | unclear"
+      },
+      "key_findings": [
+        {
+          "rank": 1,
+          "finding": "",
+          "observation": "",
+          "interpretation": "",
+          "interpretation_type": "direct | inferred | insufficient_evidence",
+          "category_expansion_relevance": "direct_category_expansion | indirect_category_expansion | general_platform_issue | not_relevant | unclear",
+          "affected_category_expansion_stage": [
+            "awareness | consideration | evaluation | add_to_cart | first_purchase | repeat_purchase"
+          ],
+          "quantitative_evidence": [
+            {
+              "metric": "",
+              "value": "",
+              "population_or_denominator": "",
+              "data_scope": "full_corpus | sample | unknown",
+              "interpretation": "",
+              "limitation": ""
+            }
+          ],
+          "qualitative_evidence": [
+            {
+              "review_id": "",
+              "source": "",
+              "evidence_summary": "",
+              "evidence_type": "direct | inferred",
+              "category_expansion_relevance": "direct_category_expansion | indirect_category_expansion",
+              "why_it_supports_the_finding": ""
+            }
+          ],
+          "affected_segments": [
+            {
+              "segment_name": "",
+              "observable_signals": [],
+              "why_affected": ""
+            }
+          ],
+          "behavioral_chain": {
+            "status": "supported | partially_supported | insufficient_evidence",
+            "evidence_type": "direct | partially_inferred | inferred",
+            "trigger": "",
+            "user_perception": "",
+            "behavior": "",
+            "category_expansion_consequence": ""
+          },
+          "frequency": "high | medium | low | unknown",
+          "severity": "high | medium | low | unknown",
+          "product_implication": "",
+          "decision_enabled": "",
+          "supporting_review_ids": [],
+          "contradicting_review_ids": [],
+          "limitations": [],
+          "evidence_strength": {
+            "evidence_volume_score": 0,
+            "evidence_relevance_score": 0,
+            "source_diversity_score": 0,
+            "consistency_score": 0,
+            "evidence_quality_score": 0,
+            "evidence_strength_score": 0.00,
+            "evidence_strength_band": "high | medium | low | insufficient",
+            "score_reason": ""
+          }
+        }
+      ],
+      "counter_evidence": [
+        {
+          "observation": "",
+          "how_it_changes_the_conclusion": "",
+          "supporting_review_ids": []
+        }
+      ],
+      "general_platform_issues_excluded": [
+        {
+          "issue": "",
+          "reason_excluded": "No supported connection to category expansion",
+          "supporting_review_ids": []
+        }
+      ],
+      "category_eligibility_considerations": [
+        {
+          "observation": "",
+          "implication": "",
+          "supporting_review_ids": []
+        }
+      ],
+      "evidence_gaps": [
+        {
+          "gap": "",
+          "why_it_matters": "",
+          "recommended_validation": ""
+        }
+      ],
+      "all_supporting_review_ids": [],
+      "question_evidence_strength": {
+        "evidence_volume_score": 0,
+        "evidence_relevance_score": 0,
+        "source_diversity_score": 0,
+        "consistency_score": 0,
+        "evidence_quality_score": 0,
+        "evidence_strength_score": 0.00,
+        "evidence_strength_band": "high | medium | low | insufficient",
+        "score_reason": ""
+      }
+    }
+  ],
+  "cross_question_patterns": [
+    {
+      "pattern": "",
+      "related_question_ids": [],
+      "observation": "",
+      "interpretation": "",
+      "category_expansion_relevance": "direct_category_expansion | indirect_category_expansion",
+      "affected_stage": [
+        "awareness | consideration | evaluation | add_to_cart | first_purchase | repeat_purchase"
+      ],
+      "supporting_review_ids": [],
+      "contradicting_review_ids": [],
+      "evidence_strength_score": 0.00,
+      "evidence_strength_band": "high | medium | low | insufficient"
+    }
+  ],
+  "behavioral_segments": [
+    {
+      "segment_name": "",
+      "segment_status": "supported | provisional | insufficient_evidence",
+      "behavioral_definition": "",
+      "defining_signals": [],
+      "primary_job_or_context": "",
+      "observed_behavior": "",
+      "main_category_expansion_barriers": [],
+      "main_category_expansion_triggers": [],
+      "category_exploration_likelihood": "high | medium | low | unknown",
+      "category_eligibility_notes": "",
+      "relevant_question_ids": [],
+      "supporting_review_ids": [],
+      "contradicting_review_ids": [],
+      "evidence_strength_score": 0.00,
+      "limitations": []
+    }
+  ],
+  "research_limitations": [
+    {
+      "limitation": "",
+      "impact": "",
+      "affected_questions": [],
+      "recommended_validation": ""
+    }
+  ],
+  "quality_checks": {
+    "number_of_questions_received": 0,
+    "number_of_question_objects_returned": 0,
+    "all_received_questions_answered": true,
+    "all_major_claims_have_supporting_evidence": true,
+    "all_review_ids_exist_in_input": true,
+    "aggregate_metrics_used_only_for_full_corpus_claims": true,
+    "sampled_reviews_not_used_to_claim_prevalence": true,
+    "direct_and_inferred_evidence_separated": true,
+    "category_expansion_relevance_assessed_for_every_finding": true,
+    "general_platform_issues_not_misrepresented_as_discovery_barriers": true,
+    "category_ineligibility_not_misrepresented_as_discovery_failure": true,
+    "contradictory_evidence_considered": true,
+    "correlation_not_presented_as_causation": true,
+    "unsupported_claims_removed": true,
+    "duplicate_findings_removed": true,
+    "confidence_described_as_evidence_strength_not_probability": true,
+    "output_is_valid_json": true
+  }
 }
 
-## QUESTION-SPECIFIC GUIDANCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### Question 1: Why do users repeatedly buy from the same categories?
+QUESTION-SPECIFIC GUIDANCE
+
+Question 1: Why do users repeatedly buy from the same categories?
 
 Examine:
 
-* Convenience
-* Urgency
-* Familiarity
-* Repeat household needs
-* Saved preferences
-* Trust in known brands
-* Reduced decision effort
-* Previous successful purchases
-* Availability of frequently purchased items
-* Lack of motivation to browse
+- Immediate or mission-led shopping
+- Repeat household needs
+- Familiarity
+- Trust in known products
+- Repeat brands
+- Saved preferences
+- Previous successful purchases
+- Reduced decision effort
+- Urgency
+- Convenience
+- Limited motivation to browse
+- Habitual reorder behaviour
+- Product or category availability
 
-Do not assume repetition is negative. It may indicate strong product-market fit for essential categories.
+Distinguish:
 
-### Question 2: What prevents users from exploring new categories?
+- Healthy repeat purchasing caused by recurring needs
+- Repetition caused by habit
+- Repetition caused by poor discovery
+- Repetition caused by trust or price barriers
+- Repetition caused by category ineligibility
+
+Do not assume repetitive purchasing is inherently negative.
+
+Question 2: What prevents users from exploring new categories?
+
+Separate barriers by journey stage.
+
+Awareness barriers:
+
+- Category is not visible
+- User does not know the platform sells it
+- User does not encounter it during the shopping mission
+
+Consideration barriers:
+
+- Category feels irrelevant
+- Recommendation lacks contextual relevance
+- User has no current need
+- User is not eligible for the category
+- Browsing requires excessive effort
+
+Evaluation barriers:
+
+- Insufficient reviews
+- Weak product information
+- Missing images
+- Unknown authenticity
+- Missing expiry or freshness information
+- Unclear specifications
+- Lack of comparison information
+
+Purchase barriers:
+
+- High price
+- Extra charges
+- Poor availability
+- High trial risk
+- Weak returns
+- Refund concerns
+- Product-quality uncertainty
+- Lack of smaller packs or samples
+
+Do not combine these into one generic "trust issue."
+
+Question 3: How do users discover products today?
+
+Look only for supported evidence of:
+
+- Search
+- Homepage recommendations
+- Offers
+- Discounts
+- Category browsing
+- Repeat-purchase lists
+- Current shopping needs
+- Complementary recommendations
+- Seasonal or event-based needs
+- Social media
+- Advertising
+- Friends or word of mouth
+- Offline discovery
+- Existing brand awareness
+
+Distinguish:
+
+- Discovery occurring inside the platform
+- Discovery occurring outside the platform
+- Platform acting only as the fulfilment channel
+
+When evidence is absent, return insufficient evidence.
+
+Question 4: What role do habits play in purchasing behaviour?
 
 Examine:
 
-* Lack of awareness
-* Poor category visibility
-* Weak recommendations
-* Price sensitivity
-* Extra charges
-* Product-quality concerns
-* Trust barriers
-* Return or refund concerns
-* Insufficient product information
-* Limited assortment
-* Poor availability
-* Negative prior experiences
-* Perceived irrelevance
-* High cognitive effort
+- Repeat categories
+- Repeat brands
+- Recurring household replenishment
+- Default platform use
+- Reduced product comparison
+- Saved or past-order reliance
+- Last-minute ordering
+- Convenience dependence
+- Loyalty despite dissatisfaction
+- Fixed shopping missions
 
-Separate barriers to browsing from barriers to final purchase.
+Assess whether habit:
 
-### Question 3: How do users discover products today?
+- Improves retention
+- Reduces cognitive effort
+- Reduces category browsing
+- Increases resistance to unfamiliar purchases
 
-Look for direct or indirect discovery through:
+Question 5: What information do users need before trying a new category?
 
-* Search
-* Home-page recommendations
-* Offers and discounts
-* Category browsing
-* Repeat purchase lists
-* Urgent needs
-* Social media
-* Advertising
-* Word of mouth
-* Product availability
-* Cross-category recommendations
-* Seasonal or event-based needs
+Separate explicitly requested information from inferred information.
 
-When the dataset does not directly show discovery behaviour, state that evidence is insufficient rather than guessing.
+Potential information needs include:
 
-### Question 4: What role do habits play in purchasing behaviour?
+- Total price
+- Ratings
+- Written reviews
+- Real customer images
+- Purchase volume
+- Product freshness
+- Expiry date
+- Manufacturing date
+- Ingredients
+- Specifications
+- Authenticity
+- Brand information
+- Return eligibility
+- Refund process
+- Warranty
+- Delivery conditions
+- Comparison information
+- Why the product is relevant to the user's current need
 
-Examine:
+Specify whether information needs differ by category risk.
 
-* Recurring household purchases
-* Last-minute ordering
-* Default platform usage
-* Repeat brands
-* Repeat categories
-* Convenience dependence
-* Time-saving behaviour
-* Purchase frequency
-* Reduced comparison
-* Loyalty despite dissatisfaction
+Question 6: What frustrations emerge repeatedly across reviews?
 
-Identify whether habit strengthens retention while simultaneously reducing exploration.
+Group frustrations into non-overlapping clusters.
 
-### Question 5: What information do users need before trying a new category?
+For each cluster assess:
 
-Examine:
+- Full-corpus frequency
+- Severity
+- Journey stage
+- Trust impact
+- Retention impact
+- Category-expansion impact
+- Whether the issue is direct, indirect, or unrelated to category expansion
 
-* Price transparency
-* Final landed cost
-* Ratings and reviews
-* Product freshness
-* Expiry date
-* Manufacturing date
-* Product images
-* Ingredients
-* Specifications
-* Brand trust
-* Return eligibility
-* Refund process
-* Warranty
-* Authenticity
-* Delivery conditions
-* Availability
-* Comparison information
+Do not present the most frequent general complaint as the primary category-expansion barrier without supporting evidence.
 
-Separate information explicitly requested by users from information inferred through complaints.
+Question 7: Which types of users experiment more with new products?
 
-### Question 6: What frustrations emerge repeatedly across reviews?
+Use behavioural evidence only.
 
-Group frustrations into distinct clusters.
+Potential supported signals may include:
 
-For every cluster, assess:
+- High ordering frequency
+- Broad existing category breadth
+- Convenience orientation
+- Offer sensitivity
+- Low-risk purchase behaviour
+- Urgent need
+- Active browsing
+- Positive response to recommendations
+- Existing cross-category purchases
+- Requesting new categories or products
+- Trying unfamiliar items in familiar shopping missions
 
-* Frequency
-* Severity
-* Stage of journey
-* Impact on trust
-* Impact on retention
-* Impact on category exploration
+Do not infer that trying new products necessarily means entering a new category.
 
-Avoid listing near-duplicate frustrations separately.
+Do not infer demographic characteristics.
 
-### Question 7: Which types of users experiment more with new products?
-
-Look for evidence of experimentation among:
-
-* Highly engaged users
-* Convenience-first users
-* Users praising assortment
-* Offer-sensitive users
-* Urgent-need users
-* Users already buying across multiple categories
-* Users requesting new products or categories
-* Users purchasing electronics, printouts, personal care, or other non-core categories
-
-Do not infer demographic characteristics unless explicitly available.
-
-### Question 8: What unmet needs appear consistently in user feedback?
+Question 8: What unmet needs appear consistently in user feedback?
 
 Differentiate:
 
-* Explicit feature requests
-* Repeated unresolved pain points
-* Missing information
-* Missing service capabilities
-* Trust-related needs
-* Support-related needs
-* Discovery-related needs
-* Accessibility, language, or preference needs
+- Explicit feature request
+- Underlying user need
+- General platform need
+- Category-expansion-specific need
 
-An unmet need should describe the underlying user need, not only the requested feature.
+Examples:
 
-Example:
+Feature request:
+"Show customer photos."
 
-Feature request: "Allow users to hide non-vegetarian products."
+Underlying need:
+"Users need credible quality evidence before taking a risk on unfamiliar products."
 
-Underlying unmet need: "Users want greater control over category visibility based on personal preferences."
+Feature request:
+"Show related products."
 
-## FINAL VALIDATION BEFORE RESPONDING
+Underlying need:
+"Users need unfamiliar categories to be connected to their current shopping mission."
 
-Before producing the JSON, verify:
+Do not convert every complaint into a discovery opportunity.
 
-1. Exactly eight question objects are included.
-2. Every question directly answers the wording of the question.
-3. Findings within a question do not repeat each other.
-4. Review IDs are used only when present in the supplied inputs.
-5. Major claims include evidence.
-6. Aggregate metrics are not fabricated.
-7. Correlation is not presented as causation.
-8. User types are behaviour-based, not invented demographics.
-9. Mixed sentiment and contradictory evidence are preserved.
-10. Low-evidence questions receive lower confidence scores.
-11. Insights are separated from recommendations.
-12. The response contains valid parseable JSON only.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FINAL VALIDATION BEFORE RESPONDING
+
+Before returning the JSON, verify:
+
+1. The number of question objects exactly equals the number of questions in the supplied batch.
+2. Every question object directly answers its supplied question.
+3. No absent question has been added.
+4. Every major claim is supported by an aggregate metric, valid review ID, or clearly labelled inference.
+5. Every review ID exists in the supplied input.
+6. Sample reviews are not used to claim full-corpus prevalence.
+7. No aggregate statistic has been invented or recalculated without sufficient input.
+8. Every finding has a category-expansion relevance classification.
+9. General delivery, support, quality, or usability complaints are not automatically treated as category-expansion barriers.
+10. Category ineligibility is not treated as failed discovery.
+11. New product experimentation is not automatically treated as new-category exploration.
+12. Direct evidence and inference are separated.
+13. Contradictory evidence is included when material.
+14. Correlation is not described as causation.
+15. Behavioural segments are based only on supplied evidence.
+16. Evidence-strength scores follow the specified formula.
+17. Evidence-strength scores are not described as statistical probabilities.
+18. Unsupported claims are removed.
+19. Findings within each question are distinct and non-overlapping.
+20. Insights remain separate from solution recommendations.
+21. The output is valid parseable JSON only.
 
 Now analyse the following input:
 

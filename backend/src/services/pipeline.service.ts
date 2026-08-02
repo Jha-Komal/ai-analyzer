@@ -8,8 +8,9 @@ import { ReviewCleanerService } from './review-cleaner.service';
 import { AIService } from './ai.service';
 import { AggregationService } from './aggregation.service';
 import { statusService } from './status.service';
-import { ANALYSIS_BATCH_SIZE } from '../constants';
+import { ANALYSIS_BATCH_SIZE, SAMPLE_TARGET_SIZE } from '../constants';
 import { SourceProgress } from '../types';
+import { buildStratifiedSample } from '../utils/stratified-sample';
 
 const LIVE_SOURCES = [
   { source: 'reddit',    label: 'Reddit',     apiLabel: 'Reddit API' },
@@ -195,10 +196,17 @@ export class PipelineService {
 
       // Step 4: Generate insights
       statusService.setStatus('generating_insights', 80, 'Generating insights');
-      const analyzedSample = allReviews.filter((r) => r.analysis !== null).slice(0, 20);
+      const analyzedPool = allReviews.filter((r) => r.analysis !== null);
+      const analyzedSample = buildStratifiedSample(
+        analyzedPool,
+        (r) => `${r.source}::${r.analysis!.sentiment}`,
+        (r) => r.id,
+        SAMPLE_TARGET_SIZE
+      );
 
       const reviews = analyzedSample.map((r) => ({
         id: r.id,
+        source: r.source,
         review: r.review,
       }));
 
@@ -212,19 +220,22 @@ export class PipelineService {
         barrier: r.analysis!.barrier ?? undefined,
         experimentLikelihood: r.analysis!.experimentLikelihood ?? undefined,
         featureRequests: JSON.parse(r.analysis!.featureRequests) as string[],
+        category: r.analysis!.category ?? undefined,
         summary: r.analysis!.summary,
         confidence: r.analysis!.confidence,
       }));
 
-      const insights = await this.aiService.generateInsights(stats, reviews, reviewAnalysis);
-      await this.insightRepo.createMany(insights);
+      const insightResult = await this.aiService.generateInsights(stats, reviews, reviewAnalysis);
+      await this.insightRepo.createRun({
+        sampleSize: analyzedSample.length,
+        totalReviewsConsidered: analyzedPool.length,
+        ...insightResult.runArtifacts,
+        questionInsights: insightResult.questionInsights,
+      });
 
       // Step 5: Generate recommendations
       statusService.setStatus('generating_insights', 90, 'Generating recommendations');
-      const recommendations = await this.aiService.generateRecommendations(
-        stats,
-        insights.map((i) => ({ question: i.question, answer: i.answer }))
-      );
+      const recommendations = await this.aiService.generateRecommendations(stats, insightResult.questionInsights);
       await this.recommendationRepo.createMany(recommendations);
 
       statusService.setStatus('completed', 100, 'Pipeline completed successfully');

@@ -30,16 +30,28 @@ export const CSV_COLUMN_MAP: Record<string, Record<string, string>> = {
 
 export const ANALYSIS_BATCH_SIZE = 10;
 
-export const INSIGHT_QUESTIONS = [
-  'Why do users repeatedly buy from the same categories?',
-  'What prevents users from exploring new categories?',
-  'How do users discover products today?',
-  'What role do habits play in purchasing behavior?',
-  'What information do users need before trying a new category?',
-  'What frustrations emerge repeatedly across reviews?',
-  'Which types of users experiment more with new products?',
-  'What unmet needs appear consistently in user feedback?',
+export interface InsightQuestion {
+  id: number;
+  question: string;
+}
+
+export const INSIGHT_QUESTIONS: InsightQuestion[] = [
+  { id: 1, question: 'Why do users repeatedly buy from the same categories?' },
+  { id: 2, question: 'What prevents users from exploring new categories?' },
+  { id: 3, question: 'How do users discover products today?' },
+  { id: 4, question: 'What role do habits play in purchasing behavior?' },
+  { id: 5, question: 'What information do users need before trying a new category?' },
+  { id: 6, question: 'What frustrations emerge repeatedly across reviews?' },
+  { id: 7, question: 'Which types of users experiment more with new products?' },
+  { id: 8, question: 'What unmet needs appear consistently in user feedback?' },
 ];
+
+export const QUESTIONS_PER_BATCH = 2;
+
+// How many analyzed reviews to feed into insight generation. Kept well below
+// the full corpus for token-budget reasons, but large + stratified enough
+// (see stratified-sample.ts) that source/sentiment diversity is meaningful.
+export const SAMPLE_TARGET_SIZE = 150;
 
 export const HTTP_STATUS = {
   OK: 200,
