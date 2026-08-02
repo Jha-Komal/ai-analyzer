@@ -149,6 +149,60 @@ export class AIService {
     return allInsights;
   }
 
+  async suggestCartComplement(cartItems: Array<{ name: string; category: string; weight: string }>): Promise<{
+    name: string;
+    price: number;
+    emoji: string;
+    category: string;
+    weight: string;
+    reason: string;
+  }> {
+    const itemList = cartItems.map(i => `- ${i.name} (${i.category}, ${i.weight})`).join('\n');
+
+    const prompt = `You are a smart grocery shopping assistant for an Indian quick-commerce app (like Blinkit).
+
+A customer has added these items to their cart:
+${itemList}
+
+Suggest exactly ONE complementary product that:
+1. Is from a COMPLETELY DIFFERENT category than all cart items
+2. Naturally pairs with what they bought (e.g., coke → tumbler/bottle, pasta → strainer, shampoo → microfiber towel, raw chicken → cutting board or marination box)
+3. Is practical and budget-friendly — price must be between ₹49 and ₹199
+4. Is a real, commonly available Indian product
+
+Respond with ONLY this JSON object (no array, no wrapper):
+{
+  "name": "<product name, concise, max 5 words>",
+  "price": <integer between 49 and 199>,
+  "emoji": "<single most relevant emoji>",
+  "category": "<category name>",
+  "weight": "<quantity or size, e.g. '1 pc', '500 ml', '2 pcs'>",
+  "reason": "<one punchy sentence explaining why this pairs perfectly — max 12 words>"
+}`;
+
+    let raw: string;
+    try {
+      raw = await this.provider.complete(prompt);
+    } catch (err) {
+      throw new Error(`AI provider error: ${String(err)}`);
+    }
+
+    const parsed = parseJsonSafe<unknown>(raw);
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Failed to parse cart suggestion response');
+    }
+
+    const p = parsed as Record<string, unknown>;
+    return {
+      name:     String(p.name     ?? 'Reusable Bottle'),
+      price:    Number(p.price    ?? 99),
+      emoji:    String(p.emoji    ?? '🫙'),
+      category: String(p.category ?? 'Kitchenware'),
+      weight:   String(p.weight   ?? '1 pc'),
+      reason:   String(p.reason   ?? 'Perfect companion for your order'),
+    };
+  }
+
   async generateRecommendations(
     stats: AggregationStats,
     insights: Array<{ question: string; answer: string }>

@@ -689,14 +689,22 @@ const SUGGESTED = [
   { id: 's3', name: 'Wingreens Farms Tandoori - Flavoured Ma...', weight: '180 g', price: 67, mrp: 70, emoji: '🧄', offer: null,             reviews: '843', stock: '2 left' },
 ];
 
+interface AiSuggestion {
+  name: string; price: number; emoji: string;
+  category: string; weight: string; reason: string;
+}
+
 function CheckoutPage({ cart, onInc, onDec, onBack }: {
   cart: CartMap;
   onInc: (id: string) => void;
   onDec: (id: string) => void;
   onBack: () => void;
 }) {
-  const [suggested, setSugg]   = useState<CartMap>({});
-  const [orderPhase, setPhase] = useState<'idle' | 'placing' | 'tracking'>('idle');
+  const [suggested, setSugg]       = useState<CartMap>({});
+  const [orderPhase, setPhase]     = useState<'idle' | 'placing' | 'tracking'>('idle');
+  const [aiSuggestion, setAiSugg]  = useState<AiSuggestion | null>(null);
+  const [aiSuggQty, setAiSuggQty]  = useState(0);
+  const [aiLoading, setAiLoading]  = useState(false);
 
   function incSugg(id: string) { setSugg(m => ({ ...m, [id]: (m[id] ?? 0) + 1 })); }
   function decSugg(id: string) { setSugg(m => { const n = { ...m }; if ((n[id] ?? 0) <= 1) delete n[id]; else n[id]--; return n; }); }
@@ -712,6 +720,34 @@ function CheckoutPage({ cart, onInc, onDec, onBack }: {
     .filter(x => x.product);
 
   const total = activeItems.reduce((s, { product, qty }) => s + product.price * qty, 0);
+
+  // Fetch AI suggestion whenever cart items change (debounced 800ms)
+  useEffect(() => {
+    if (activeItems.length === 0) { setAiSugg(null); return; }
+    const timer = setTimeout(async () => {
+      setAiLoading(true);
+      try {
+        const payload = activeItems.map(({ product }) => ({
+          name: product.name,
+          category: Object.keys(PRODUCTS).find(cat => PRODUCTS[cat].some(p => p.id === product.id)) ?? 'General',
+          weight: product.weight,
+        }));
+        const res = await fetch('http://localhost:3001/api/cart-suggestion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cartItems: payload }),
+        });
+        const json = await res.json() as { success: boolean; data: AiSuggestion };
+        if (json.success) { setAiSugg(json.data); setAiSuggQty(0); }
+      } catch {
+        // silently ignore — suggestion is non-critical
+      } finally {
+        setAiLoading(false);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(Object.keys(cart).sort())]);
 
   if (orderPhase === 'tracking') {
     return <TrackingScreen total={total} onBackHome={onBack} />;
@@ -767,6 +803,71 @@ function CheckoutPage({ cart, onInc, onDec, onBack }: {
             </div>
           ))}
         </div>
+
+        {/* AI-powered suggestion card */}
+        {(aiLoading || aiSuggestion) && (
+          <div style={{ margin: '10px 10px 0', background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 5px rgba(0,0,0,0.08)', border: '1.5px solid #E8F5E9' }}>
+            {/* Header */}
+            <div style={{ background: 'linear-gradient(90deg,#E8F5E9,#F1F8E9)', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 14 }}>✨</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#0C831F' }}>People also buy</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, color: '#888', fontWeight: 500 }}>AI Powered</span>
+            </div>
+
+            {aiLoading ? (
+              <div style={{ padding: '16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#f5f5f5', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 20, height: 20, border: '2px solid #E8F5E9', borderTopColor: '#0C831F', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                </div>
+                <div>
+                  <div style={{ width: 100, height: 10, background: '#f0f0f0', borderRadius: 5, marginBottom: 6 }} />
+                  <div style={{ width: 60, height: 8, background: '#f0f0f0', borderRadius: 5 }} />
+                </div>
+              </div>
+            ) : aiSuggestion && (
+              <div style={{ padding: '12px 14px' }}>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  {/* Emoji thumb */}
+                  <div style={{ width: 56, height: 56, borderRadius: 10, background: '#f8f8f8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, flexShrink: 0 }}>
+                    {aiSuggestion.emoji}
+                  </div>
+                  {/* Details */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.3 }}>{aiSuggestion.name}</div>
+                    <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{aiSuggestion.weight} · {aiSuggestion.category}</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 4 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>₹{aiSuggestion.price}</span>
+                    </div>
+                  </div>
+                  {/* ADD / stepper */}
+                  <div style={{ flexShrink: 0 }}>
+                    {aiSuggQty === 0 ? (
+                      <button onClick={() => setAiSuggQty(1)} style={{ background: '#fff', border: '1.5px solid #0C831F', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#0C831F' }}>ADD</span>
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', background: '#0C831F', borderRadius: 8, overflow: 'hidden' }}>
+                        <button onClick={() => setAiSuggQty(q => Math.max(0, q - 1))} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 15, fontWeight: 700, padding: '5px 9px', cursor: 'pointer', lineHeight: 1 }}>−</button>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', minWidth: 18, textAlign: 'center' }}>{aiSuggQty}</span>
+                        <button onClick={() => setAiSuggQty(q => q + 1)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 15, fontWeight: 700, padding: '5px 9px', cursor: 'pointer', lineHeight: 1 }}>+</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Reason */}
+                <div style={{ marginTop: 10, background: '#F9FBE7', borderRadius: 8, padding: '7px 10px', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: 12, flexShrink: 0 }}>💡</span>
+                  <span style={{ fontSize: 10, color: '#555', lineHeight: 1.4, fontWeight: 500 }}>{aiSuggestion.reason}</span>
+                </div>
+                {/* Social proof */}
+                <div style={{ marginTop: 7, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ fontSize: 10 }}>🔥</span>
+                  <span style={{ fontSize: 9.5, color: '#888' }}>2,000+ people ordered this within 15 km radius</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div style={{ margin: '12px 10px 0' }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>You might also like</div>

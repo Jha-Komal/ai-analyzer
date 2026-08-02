@@ -16,6 +16,7 @@ import { InsightController } from '../controllers/insight.controller';
 import { RecommendationController } from '../controllers/recommendation.controller';
 import { StatsController } from '../controllers/stats.controller';
 import { StatusController } from '../controllers/status.controller';
+import { CartSuggestionController } from '../controllers/cart-suggestion.controller';
 
 export function createRouter(): Router {
   const router = Router();
@@ -52,6 +53,7 @@ export function createRouter(): Router {
   const recommendationController = new RecommendationController(recommendationRepo);
   const statsController = new StatsController(dashboardRepo);
   const statusController = new StatusController();
+  const cartSuggestionController = new CartSuggestionController(aiService);
 
   // Routes
   router.get('/load-reviews', pipelineController.loadReviews);
@@ -68,6 +70,7 @@ export function createRouter(): Router {
   router.get('/emotions', statsController.getEmotions);
   router.get('/categories', statsController.getCategories);
   router.get('/status', statusController.getStatus);
+  router.post('/cart-suggestion', cartSuggestionController.suggest);
 
   return router;
 }
