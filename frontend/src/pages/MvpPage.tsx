@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -393,31 +393,52 @@ function AiBuddyPanel({ onClose, onBulkAdd }: {
   onClose: () => void;
   onBulkAdd: (items: Array<{id: string; quantity: number}>) => void;
 }) {
-  const [msgs,  setMsgs]  = useState<ChatMsg[]>([{ role:'ai', text:"Hey! 👋 What would you like me to build today?" }]);
+  const [msgs,  setMsgs]  = useState<ChatMsg[]>([{ role:'ai', text:"Hey! 👋 What would you like me to build today? Pick a suggestion or type your own!" }]);
   const [phase, setPhase] = useState<'idle' | 'typing' | 'done'>('idle');
+  const [input, setInput] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [msgs, phase]);
 
   const CATALOG = Object.entries(PRODUCTS).flatMap(([cat, prods]) =>
     prods.map(p => ({ id: p.id, name: p.name, price: p.price, category: cat }))
   );
 
-  async function pick(reply: typeof QUICK_REPLIES[0]) {
-    setMsgs(m => [...m, { role:'user', text: reply.text }]);
+  async function callAI(userText: string, prompt: string, budget: number) {
+    setMsgs(m => [...m, { role:'user', text: userText }]);
     setPhase('typing');
     try {
       const res = await api.post<{ success: boolean; data: { items: Array<{id: string; quantity: number}> } }>(
         '/api/ai-cart',
-        { prompt: reply.prompt, budget: reply.budget, products: CATALOG }
+        { prompt, budget, products: CATALOG }
       );
       const items = res.data.success ? res.data.data.items : [];
-      const count = items.length;
-      if (count === 0) throw new Error('empty');
-      setMsgs(m => [...m, { role:'ai', text:`Done! ✅ Added ${count} items to your cart. Taking you there...` }]);
+      if (items.length === 0) throw new Error('empty');
+      setMsgs(m => [...m, { role:'ai', text:`Done! ✅ Added ${items.length} items to your cart. Taking you there...` }]);
       setPhase('done');
       setTimeout(() => onBulkAdd(items), 1400);
     } catch {
-      setMsgs(m => [...m, { role:'ai', text:"Oops! Something went wrong. Please try again 🙏" }]);
+      setMsgs(m => [...m, { role:'ai', text:"Oops! Couldn't build a cart for that. Try rephrasing or pick a suggestion below 🙏" }]);
       setPhase('idle');
     }
+  }
+
+  function pick(reply: typeof QUICK_REPLIES[0]) {
+    callAI(reply.text, reply.prompt, reply.budget);
+  }
+
+  function send() {
+    const text = input.trim();
+    if (!text || phase !== 'idle') return;
+    setInput('');
+    // Extract budget from message (e.g. "under 500" or "₹800")
+    const nums = (text.match(/\d[\d,]*/g) ?? [])
+      .map(n => parseInt(n.replace(',', '')))
+      .filter(n => n >= 50 && n <= 10000);
+    const budget = nums.length > 0 ? Math.max(...nums) : 1000;
+    callAI(text, text, budget);
   }
 
   return (
@@ -427,7 +448,7 @@ function AiBuddyPanel({ onClose, onBulkAdd }: {
       <div onClick={phase === 'idle' ? onClose : undefined} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} />
 
       {/* Chat panel */}
-      <div style={{ position:'relative', display:'flex', flexDirection:'column', background:'#ECECEC', borderRadius:'20px 20px 0 0', maxHeight:'72%' }}>
+      <div style={{ position:'relative', display:'flex', flexDirection:'column', background:'#ECECEC', borderRadius:'20px 20px 0 0', maxHeight:'75%' }}>
         {/* Header */}
         <div style={{ background:'linear-gradient(135deg,#0C831F,#43A047)', padding:'13px 14px', borderRadius:'20px 20px 0 0', display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
           <div style={{ width:34, height:34, background:'rgba(255,255,255,0.22)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:19 }}>🤖</div>
@@ -439,7 +460,7 @@ function AiBuddyPanel({ onClose, onBulkAdd }: {
         </div>
 
         {/* Messages */}
-        <div style={{ flex:1, overflowY:'auto', padding:'14px 10px 10px', display:'flex', flexDirection:'column', gap:8, scrollbarWidth:'none' }}>
+        <div ref={scrollRef} style={{ flex:1, overflowY:'auto', padding:'14px 10px 10px', display:'flex', flexDirection:'column', gap:8, scrollbarWidth:'none' }}>
           {msgs.map((msg, i) => (
             <div key={i} style={{ display:'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', alignItems:'flex-end', gap:6 }}>
               {msg.role === 'ai' && <span style={{ fontSize:20, flexShrink:0, marginBottom:2 }}>🤖</span>}
@@ -468,25 +489,33 @@ function AiBuddyPanel({ onClose, onBulkAdd }: {
             </div>
           )}
 
-          {/* Quick reply chips — shown only before user picks */}
+          {/* Quick reply chips — shown only before first user message */}
           {phase === 'idle' && msgs.length === 1 && (
             <div style={{ display:'flex', flexDirection:'column', gap:7, marginTop:4, paddingLeft:34 }}>
               {QUICK_REPLIES.map(reply => (
-                <button
-                  key={reply.id}
-                  onClick={() => pick(reply)}
-                  style={{
-                    background:'#fff', border:'1.5px solid #0C831F', borderRadius:20,
-                    padding:'9px 14px', fontSize:12, color:'#0C831F', fontWeight:600,
-                    cursor:'pointer', textAlign:'left', boxShadow:'0 1px 3px rgba(0,0,0,0.07)',
-                    width:'fit-content', maxWidth:'100%',
-                  }}
-                >
+                <button key={reply.id} onClick={() => pick(reply)}
+                  style={{ background:'#fff', border:'1.5px solid #0C831F', borderRadius:20, padding:'9px 14px', fontSize:12, color:'#0C831F', fontWeight:600, cursor:'pointer', textAlign:'left', boxShadow:'0 1px 3px rgba(0,0,0,0.07)', width:'fit-content', maxWidth:'100%' }}>
                   {reply.text}
                 </button>
               ))}
             </div>
           )}
+        </div>
+
+        {/* Input bar */}
+        <div style={{ background:'#fff', padding:'10px 12px', display:'flex', gap:8, alignItems:'center', borderTop:'1px solid #e0e0e0', flexShrink:0 }}>
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && send()}
+            placeholder="e.g. breakfast items under ₹300..."
+            disabled={phase !== 'idle'}
+            style={{ flex:1, border:'1.5px solid #e0e0e0', borderRadius:20, padding:'8px 14px', fontSize:11.5, outline:'none', background: phase !== 'idle' ? '#f9f9f9' : '#fff', color:'#1a1a1a', fontFamily:'inherit' }}
+          />
+          <button onClick={send} disabled={!input.trim() || phase !== 'idle'}
+            style={{ width:34, height:34, borderRadius:'50%', border:'none', cursor: input.trim() && phase === 'idle' ? 'pointer' : 'not-allowed', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, background: input.trim() && phase === 'idle' ? '#0C831F' : '#e0e0e0', transition:'background 0.15s' }}>
+            <span style={{ fontSize:14, color: input.trim() && phase === 'idle' ? '#fff' : '#aaa' }}>➤</span>
+          </button>
         </div>
       </div>
     </div>
