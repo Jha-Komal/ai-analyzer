@@ -159,13 +159,17 @@ export class AIService {
   }> {
     const itemList = cartItems.map(i => `- ${i.name} (${i.category}, ${i.weight})`).join('\n');
 
+    const cartCategories = [...new Set(cartItems.map(i => i.category))];
+
     const prompt = `You are a smart grocery shopping assistant for an Indian quick-commerce app (like Blinkit).
 
 A customer has added these items to their cart:
 ${itemList}
 
+Categories already in cart (DO NOT suggest anything from these): ${cartCategories.join(', ')}
+
 Suggest exactly ONE complementary product that:
-1. Is from a COMPLETELY DIFFERENT category than all cart items
+1. Is from a category NOT in the list above — this is mandatory
 2. Naturally pairs with what they bought (e.g., coke → tumbler/bottle, pasta → strainer, shampoo → microfiber towel, raw chicken → cutting board or marination box)
 3. Is practical and budget-friendly — price must be between ₹49 and ₹199
 4. Is a real, commonly available Indian product

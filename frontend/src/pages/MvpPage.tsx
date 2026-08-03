@@ -372,6 +372,89 @@ const PRODUCTS: Record<string, Product[]> = {
   ],
 };
 
+// ─── Extra category products ──────────────────────────────────────────────────
+
+Object.assign(PRODUCTS, {
+  'Rakhi': [
+    { id:'rk1',  name:'Bhaiya Bhabhi Rakhi Set', weight:'1 set', price:199, mrp:299, emoji:'🎀', tag:'POPULAR' },
+    { id:'rk2',  name:'Kids Cartoon Rakhi',       weight:'2 pcs', price:79,  mrp:120, emoji:'🎀' },
+    { id:'rk3',  name:'Silver Plated Rakhi',      weight:'1 pc',  price:299, mrp:450, emoji:'✨', tag:'PREMIUM' },
+    { id:'rk4',  name:'Rudraksha Rakhi',          weight:'1 pc',  price:149, mrp:199, emoji:'📿' },
+    { id:'rk5',  name:'Rakhi Gift Hamper',        weight:'1 set', price:499, mrp:699, emoji:'🎁', tag:'GIFTING' },
+    { id:'rk6',  name:'Chocolate Box (Cadbury)',  weight:'162 g', price:180, mrp:220, emoji:'🍫', tag:'GIFTING' },
+    { id:'rk7',  name:'Rakhi Thali Set',          weight:'1 set', price:249, mrp:349, emoji:'🪔' },
+    { id:'rk8',  name:'Lumba Rakhi Set',          weight:'1 set', price:129, mrp:180, emoji:'🎀' },
+    { id:'rk9',  name:'Designer Rakhi',           weight:'1 pc',  price:99,  mrp:149, emoji:'💫', tag:'NEW' },
+    { id:'rk10', name:'Rakhi Dry Fruit Box',      weight:'200 g', price:349, mrp:499, emoji:'🥜', tag:'GIFTING' },
+  ],
+  'Kids': [
+    { id:'kd1',  name:'Lay\'s Classic Salted',    weight:'52 g',  price:20,  mrp:20,  emoji:'🥔', tag:'POPULAR' },
+    { id:'kd2',  name:'KitKat Chocolate',         weight:'37 g',  price:40,  mrp:44,  emoji:'🍫' },
+    { id:'kd3',  name:'Maggi 2-Minute Noodles',   weight:'70 g',  price:14,  mrp:16,  emoji:'🍜', tag:'POPULAR' },
+    { id:'kd4',  name:'Parle-G Biscuits',         weight:'100 g', price:10,  mrp:10,  emoji:'🍪' },
+    { id:'kd5',  name:'Frooti Mango Drink',       weight:'200 ml',price:15,  mrp:20,  emoji:'🥭' },
+    { id:'kd6',  name:'Coloring Book + Crayons',  weight:'1 set', price:99,  mrp:149, emoji:'🎨', tag:'FUN' },
+    { id:'kd7',  name:'Bubbles Wand Set',         weight:'1 set', price:49,  mrp:79,  emoji:'🫧' },
+    { id:'kd8',  name:'Play Dough Set (6 colours)',weight:'1 set', price:149, mrp:199, emoji:'🎭', tag:'POPULAR' },
+    { id:'kd9',  name:'Oreo Biscuits',            weight:'120 g', price:35,  mrp:40,  emoji:'🍪' },
+    { id:'kd10', name:'Sketch Pens (24 shades)',  weight:'1 set', price:79,  mrp:99,  emoji:'✏️' },
+  ],
+  'Electronics': [
+    { id:'el1',  name:'USB-C Cable 1m',           weight:'1 pc',  price:149, mrp:299, emoji:'🔌', tag:'POPULAR' },
+    { id:'el2',  name:'Power Bank 10000 mAh',     weight:'220 g', price:799, mrp:1299,emoji:'🔋', tag:'POPULAR' },
+    { id:'el3',  name:'Earphones Wired',          weight:'1 pc',  price:199, mrp:399, emoji:'🎧' },
+    { id:'el4',  name:'OTG Adapter Type-C',       weight:'1 pc',  price:99,  mrp:199, emoji:'🔌' },
+    { id:'el5',  name:'Screen Protector (6.1")',  weight:'1 pc',  price:99,  mrp:199, emoji:'📱', tag:'NEW' },
+    { id:'el6',  name:'Phone Stand Adjustable',   weight:'1 pc',  price:149, mrp:249, emoji:'📲' },
+    { id:'el7',  name:'Mini LED Torch',           weight:'50 g',  price:99,  mrp:149, emoji:'🔦' },
+    { id:'el8',  name:'AA Batteries (4 pcs)',     weight:'4 pcs', price:89,  mrp:120, emoji:'🔋' },
+    { id:'el9',  name:'3-in-1 Charging Cable',   weight:'1 pc',  price:249, mrp:499, emoji:'🔌', tag:'POPULAR' },
+    { id:'el10', name:'Laptop Cooling Pad',       weight:'350 g', price:499, mrp:799, emoji:'💻' },
+  ],
+  'Beauty': [
+    { id:'bt1',  name:'Cetaphil Face Wash',       weight:'125 ml',price:249, mrp:299, emoji:'🧴', tag:'POPULAR' },
+    { id:'bt2',  name:'Dove Shampoo',             weight:'180 ml',price:185, mrp:220, emoji:'🧴' },
+    { id:'bt3',  name:'Nivea Body Lotion',        weight:'200 ml',price:199, mrp:249, emoji:'🧴' },
+    { id:'bt4',  name:'Lakme Face Powder',        weight:'9 g',   price:149, mrp:180, emoji:'💄', tag:'POPULAR' },
+    { id:'bt5',  name:'Vaseline Petroleum Jelly', weight:'50 ml', price:79,  mrp:99,  emoji:'🫙' },
+    { id:'bt6',  name:'Gillette Mach3 Razor',     weight:'1 pc',  price:249, mrp:299, emoji:'🪒', tag:'POPULAR' },
+    { id:'bt7',  name:'Maybelline Kajal',         weight:'0.35 g',price:179, mrp:220, emoji:'✏️' },
+    { id:'bt8',  name:'Parachute Coconut Oil',    weight:'200 ml',price:99,  mrp:120, emoji:'🫙' },
+    { id:'bt9',  name:'Colgate MaxFresh',         weight:'150 g', price:89,  mrp:109, emoji:'🦷' },
+    { id:'bt10', name:'Dettol Hand Sanitizer',    weight:'50 ml', price:59,  mrp:79,  emoji:'🧼', tag:'ESSENTIALS' },
+  ],
+});
+
+// ─── Past orders (Order Again) ────────────────────────────────────────────────
+
+const PAST_ORDERS = [
+  {
+    id: 'ord1', date: '2 days ago', total: 248,
+    items: [
+      { productId: 'vf1',  qty: 2 },
+      { productId: 'vf2',  qty: 1 },
+      { productId: 'db1',  qty: 1 },
+    ],
+  },
+  {
+    id: 'ord2', date: '5 days ago', total: 389,
+    items: [
+      { productId: 'ic1',  qty: 1 },
+      { productId: 'bt9',  qty: 1 },
+      { productId: 'vf11', qty: 1 },
+      { productId: 'db3',  qty: 2 },
+    ],
+  },
+  {
+    id: 'ord3', date: '1 week ago', total: 175,
+    items: [
+      { productId: 'vf3',  qty: 2 },
+      { productId: 'vf7',  qty: 1 },
+      { productId: 'db6',  qty: 1 },
+    ],
+  },
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function pct(price: number, mrp: number) {
@@ -453,7 +536,7 @@ function AiBuddyPanel({ onClose, onBulkAdd }: {
         <div style={{ background:'linear-gradient(135deg,#0C831F,#43A047)', padding:'13px 14px', borderRadius:'20px 20px 0 0', display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
           <div style={{ width:34, height:34, background:'rgba(255,255,255,0.22)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:19 }}>🤖</div>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:13, fontWeight:800, color:'#fff', lineHeight:1.2 }}>Blinki</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#fff', lineHeight:1.2 }}>Blinky</div>
             <div style={{ fontSize:9, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>● Online · Powered by AI</div>
           </div>
           <button onClick={onClose} style={{ width:26, height:26, borderRadius:'50%', background:'rgba(255,255,255,0.18)', border:'none', cursor:'pointer', color:'#fff', fontSize:13, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
@@ -946,9 +1029,9 @@ function CheckoutPage({ cart, onInc, onDec, onBack }: {
 
         {/* AI-powered suggestion card */}
         {(aiLoading || aiSuggestion) && (
-          <div style={{ margin: '10px 10px 0', background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 5px rgba(0,0,0,0.08)', border: '1.5px solid #E8F5E9' }}>
+          <div style={{ margin: '10px 10px 0', background: '#FFFDE7', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 5px rgba(0,0,0,0.08)', border: '1.5px solid #FFF176' }}>
             {/* Header — shows reason from AI once loaded, skeleton while loading */}
-            <div style={{ background: 'linear-gradient(90deg,#E8F5E9,#F1F8E9)', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ background: 'linear-gradient(90deg,#FFF9C4,#FFFDE7)', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 14 }}>✨</span>
               {aiLoading || !aiSuggestion ? (
                 <div style={{ flex: 1, height: 10, background: '#c8e6c9', borderRadius: 5 }} />
@@ -1011,7 +1094,7 @@ function CheckoutPage({ cart, onInc, onDec, onBack }: {
                 {/* Social proof */}
                 <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 10 }}>🔥</span>
-                  <span style={{ fontSize: 9.5, color: '#444' }}>2,000+ people ordered this within 15 km radius</span>
+                  <span style={{ fontSize: 9.5, color: '#444' }}>2,000+ people ordered this within 5 km radius</span>
                 </div>
               </div>
             )}
@@ -1107,7 +1190,7 @@ function SectionGrid({ title, cats, onCatClick }: { title: string; cats: CatTile
   );
 }
 
-function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiBuddy }: {
+function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiBuddy, onAllCategories, onOrderAgain }: {
   cart: CartMap;
   onAdd: (id: string) => void;
   onInc: (id: string) => void;
@@ -1115,6 +1198,8 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
   onViewCart: () => void;
   onCatClick: (label: string) => void;
   onOpenAiBuddy: () => void;
+  onAllCategories: () => void;
+  onOrderAgain: () => void;
 }) {
   const [activeCat, setActiveCat] = useState('all');
   const [search, setSearch]       = useState('');
@@ -1198,7 +1283,7 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
                 {/* Pulsing ring 2 — green, offset */}
                 <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #0C831F', animation:'aiBuddyRing 1.6s ease-out 0.8s infinite', pointerEvents:'none' }} />
                 <button onClick={onOpenAiBuddy}
-                  title="Blinki"
+                  title="Blinky"
                   style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#F8C22C,#0C831F)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(248,194,44,0.55)', animation:'aiBuddyBob 2s ease-in-out infinite' }}>
                   <span style={{ fontSize:17 }}>🤖</span>
                 </button>
@@ -1219,7 +1304,7 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
 
       <div style={{ background: '#fff', borderBottom: '1px solid #eee', display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', flexShrink: 0 }}>
         {TOP_CATS.map(cat => (
-          <button key={cat.id} onClick={() => setActiveCat(cat.id)}
+          <button key={cat.id} onClick={() => { setActiveCat(cat.id); if (cat.id !== 'all') onCatClick(cat.label); }}
             style={{ flex: '0 0 auto', padding: '8px 14px', border: 'none', background: 'transparent', cursor: 'pointer', borderBottom: activeCat === cat.id ? '2.5px solid #0C831F' : '2.5px solid transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, position: 'relative' }}>
             {'badge' in cat && cat.badge && (
               <span style={{ position: 'absolute', top: 4, right: 4, background: '#FF5722', color: '#fff', fontSize: 6.5, fontWeight: 800, borderRadius: 3, padding: '1px 3px' }}>New</span>
@@ -1233,7 +1318,7 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
       <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none', paddingBottom: cartQty > 0 ? 106 : 56 }}>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', padding: '12px 10px 8px' }}>
           {BANNERS.map((b, i) => (
-            <div key={i} style={{ flexShrink: 0, width: i === 0 ? 108 : 118, height: 96, background: b.bg, borderRadius: 12, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '8px 10px', position: 'relative', overflow: 'hidden', cursor: 'pointer', border: b.badge ? '2px solid rgba(255,255,255,0.3)' : 'none' }}>
+            <div key={i} onClick={() => onCatClick(['Rakhi', 'Dry Fruits & Cereals', 'Beauty'][i])} style={{ flexShrink: 0, width: i === 0 ? 108 : 118, height: 96, background: b.bg, borderRadius: 12, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '8px 10px', position: 'relative', overflow: 'hidden', cursor: 'pointer', border: b.badge ? '2px solid rgba(255,255,255,0.3)' : 'none' }}>
               {b.badge && <span style={{ position: 'absolute', top: 6, left: 8, background: '#F8C22C', color: '#000', fontSize: 7, fontWeight: 800, borderRadius: 4, padding: '1px 5px' }}>{b.badge}</span>}
               {!b.badge && <span style={{ position: 'absolute', top: 6, left: 8, background: 'rgba(255,255,255,0.9)', color: '#FF6D00', fontSize: 7, fontWeight: 800, borderRadius: 4, padding: '2px 5px', textAlign: 'center', lineHeight: 1.3, whiteSpace: 'pre-line' }}>NEWLY{'\n'}LAUNCHED</span>}
               <span style={{ fontSize: 26, marginTop: b.badge ? 12 : 10, marginBottom: 4 }}>{b.emoji}</span>
@@ -1246,8 +1331,8 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
         <div style={{ padding: '4px 10px 10px' }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>Frequently bought</div>
           <div style={{ display: 'flex', gap: 8 }}>
-            {FREQ_GROUPS.map(g => (
-              <div key={g.label} style={{ flex: 1, background: g.bg, borderRadius: 12, padding: '10px 6px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            {FREQ_GROUPS.map((g, i) => (
+              <div key={g.label} onClick={() => onCatClick(['Vegetables & Fruits', 'Vegetables & Fruits', 'Chicken, Meat & Fish'][i])} style={{ flex: 1, background: g.bg, borderRadius: 12, padding: '10px 6px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div style={{ fontSize: 9, color: '#888', alignSelf: 'flex-start' }}>+{g.more} more</div>
                 <div style={{ fontSize: 20, textAlign: 'center' }}>{g.emojis.join(' ')}</div>
                 <div style={{ fontSize: 9, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', lineHeight: 1.3, whiteSpace: 'pre-line' }}>{g.label}</div>
@@ -1257,7 +1342,7 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
         </div>
 
         <div style={{ padding: '0 10px 12px' }}>
-          <button style={{ width: '100%', background: '#E8F5E9', border: 'none', borderRadius: 12, padding: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <button onClick={onAllCategories} style={{ width: '100%', background: '#E8F5E9', border: 'none', borderRadius: 12, padding: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             <span style={{ fontSize: 18 }}>🛒</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#0C831F' }}>See all products</span>
             <span style={{ fontSize: 13, color: '#0C831F' }}>▶</span>
@@ -1267,8 +1352,8 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
         <div style={{ padding: '0 10px 12px' }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>Continue browsing for</div>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
-            {[{ label: '2 days ago', emoji: '🌾' }, { label: 'Recently Viewed', emoji: '🥬' }].map(item => (
-              <div key={item.label} style={{ flexShrink: 0, width: 100, background: '#fff', borderRadius: 12, padding: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', cursor: 'pointer' }}>
+            {[{ label: '2 days ago', emoji: '🌾', cat: 'Atta, Rice & Dal' }, { label: 'Recently Viewed', emoji: '🥬', cat: 'Vegetables & Fruits' }].map(item => (
+              <div key={item.label} onClick={() => onCatClick(item.cat)} style={{ flexShrink: 0, width: 100, background: '#fff', borderRadius: 12, padding: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 8, color: '#888' }}>⏱ {item.label}</span>
                   <span style={{ fontSize: 10, color: '#aaa' }}>✕</span>
@@ -1282,9 +1367,12 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
         <SectionGrid title="Grocery & Kitchen" cats={GROCERY_CATS} onCatClick={onCatClick} />
         <SectionGrid title="Snacks & Drinks"   cats={SNACK_CATS}    onCatClick={onCatClick} />
 
-        <div style={{ padding: '8px 10px 4px' }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>Beauty & Personal Care</div>
-        </div>
+        <SectionGrid title="Beauty & Personal Care" cats={[
+          { label: 'Beauty',      emoji: '💄', bg: '#FFF8E1' },
+          { label: 'Kids',        emoji: '👶', bg: '#E3F2FD' },
+          { label: 'Electronics', emoji: '📱', bg: '#E8EAF6' },
+          { label: 'Rakhi',       emoji: '🎀', bg: '#FCE4EC' },
+        ]} onCatClick={onCatClick} />
       </div>
 
       {cartQty > 0 && (
@@ -1297,10 +1385,15 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
       )}
 
       <div style={{ background: '#fff', borderTop: '1px solid #eee', display: 'flex', alignItems: 'stretch', height: 56, flexShrink: 0 }}>
-        {[{ icon: '🏠', label: 'Home', active: true }, { icon: '🔄', label: 'Order Again', active: false }, { icon: '⊞', label: 'Categories', active: false }, { icon: '🖨️', label: 'Print', active: false }].map(item => (
-          <button key={item.label} style={{ flex: 1, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+        {[
+          { icon: '🏠', label: 'Home',        onClick: () => {}              },
+          { icon: '🔄', label: 'Order Again', onClick: onOrderAgain          },
+          { icon: '⊞',  label: 'Categories',  onClick: onAllCategories       },
+          { icon: '🖨️', label: 'Print',       onClick: () => window.print()  },
+        ].map(item => (
+          <button key={item.label} onClick={item.onClick} style={{ flex: 1, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
             <span style={{ fontSize: 18 }}>{item.icon}</span>
-            <span style={{ fontSize: 8, color: item.active ? '#0C831F' : '#888', fontWeight: item.active ? 700 : 400 }}>{item.label}</span>
+            <span style={{ fontSize: 8, color: item.label === 'Home' ? '#0C831F' : '#888', fontWeight: item.label === 'Home' ? 700 : 400 }}>{item.label}</span>
           </button>
         ))}
         <button style={{ flex: 1, background: '#5C3EFF', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1313,7 +1406,101 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
 
 // ─── Main App ─────────────────────────────────────────────────────────────────
 
-type View = 'home' | 'category' | 'cart';
+type View = 'home' | 'category' | 'cart' | 'orderAgain' | 'allCategories';
+
+// ─── All Categories Page ──────────────────────────────────────────────────────
+
+const ALL_CATS: CatTile[] = [
+  ...GROCERY_CATS,
+  ...SNACK_CATS,
+  { label: 'Rakhi',       emoji: '🎀', bg: '#FCE4EC' },
+  { label: 'Kids',        emoji: '👶', bg: '#E3F2FD' },
+  { label: 'Electronics', emoji: '📱', bg: '#E8EAF6' },
+  { label: 'Beauty',      emoji: '💄', bg: '#FFF8E1' },
+];
+
+function AllCategoriesPage({ onCatClick, onBack }: { onCatClick: (label: string) => void; onBack: () => void }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#f5f5f5', fontFamily: "'Nunito', system-ui, sans-serif", display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ height: 44, background: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a' }}>01:13</span>
+        <span style={{ fontSize: 9, color: '#555' }}>Vo LTEB ▌▌▌ 🔋22%</span>
+      </div>
+      <div style={{ background: '#fff', borderBottom: '1px solid #eee', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', padding: 0, color: '#1a1a1a', lineHeight: 1 }}>←</button>
+        <span style={{ fontSize: 15, fontWeight: 800, color: '#1a1a1a' }}>All Categories</span>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none', padding: '12px 10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {ALL_CATS.map(cat => (
+            <div key={cat.label} onClick={() => onCatClick(cat.label)}
+              style={{ background: cat.bg, borderRadius: 12, padding: '14px 8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 28 }}>{cat.emoji}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: '#1a1a1a', textAlign: 'center', lineHeight: 1.3 }}>{cat.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Order Again Page ─────────────────────────────────────────────────────────
+
+function OrderAgainPage({ onBack, onBulkAdd, onViewCart }: {
+  onBack: () => void;
+  onBulkAdd: (items: Array<{ id: string; quantity: number }>) => void;
+  onViewCart: () => void;
+}) {
+  const [added, setAdded] = useState<string | null>(null);
+
+  function reorder(ordId: string, items: typeof PAST_ORDERS[0]['items']) {
+    onBulkAdd(items.map(i => ({ id: i.productId, quantity: i.qty })));
+    setAdded(ordId);
+    setTimeout(() => onViewCart(), 800);
+  }
+
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#f5f5f5', fontFamily: "'Nunito', system-ui, sans-serif", display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ height: 44, background: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a' }}>01:13</span>
+        <span style={{ fontSize: 9, color: '#555' }}>Vo LTEB ▌▌▌ 🔋22%</span>
+      </div>
+      <div style={{ background: '#fff', borderBottom: '1px solid #eee', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', padding: 0, color: '#1a1a1a', lineHeight: 1 }}>←</button>
+        <span style={{ fontSize: 15, fontWeight: 800, color: '#1a1a1a' }}>Order Again</span>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none', padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {PAST_ORDERS.map(ord => {
+          const items = ord.items.map(i => ({ product: ALL_PRODUCTS[i.productId], qty: i.qty })).filter(i => i.product);
+          return (
+            <div key={ord.id} style={{ background: '#fff', borderRadius: 14, padding: '12px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontSize: 11, color: '#888' }}>🕐 {ord.date}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a' }}>₹{ord.total}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                {items.map(({ product, qty }) => (
+                  <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>{product.emoji}</span>
+                    <span style={{ fontSize: 11, color: '#333', flex: 1 }}>{product.name}</span>
+                    <span style={{ fontSize: 10, color: '#888' }}>×{qty}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>₹{product.price * qty}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => reorder(ord.id, ord.items)}
+                style={{ width: '100%', background: added === ord.id ? '#0C831F' : '#E8F5E9', border: 'none', borderRadius: 10, padding: '9px', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: added === ord.id ? '#fff' : '#0C831F', transition: 'all 0.2s' }}>
+                {added === ord.id ? '✓ Added to cart!' : '+ Reorder'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function BlinkitApp() {
   const [view,          setView]        = useState<View>('home');
@@ -1342,8 +1529,8 @@ function BlinkitApp() {
 
   return (
     <div style={{ position:'relative', width:'100%', height:'100%' }}>
-      {view === 'cart' && <CheckoutPage cart={cart} onInc={inc} onDec={dec} onBack={() => setView('home')} />}
-      {view === 'category' && (
+      {view === 'cart'          && <CheckoutPage cart={cart} onInc={inc} onDec={dec} onBack={() => setView('home')} />}
+      {view === 'category'      && (
         <CategoryPage
           category={category} cart={cart}
           onAdd={add} onInc={inc} onDec={dec}
@@ -1351,12 +1538,16 @@ function BlinkitApp() {
           onViewCart={() => setView('cart')}
         />
       )}
-      {view === 'home' && (
+      {view === 'allCategories' && <AllCategoriesPage onCatClick={openCategory} onBack={() => setView('home')} />}
+      {view === 'orderAgain'    && <OrderAgainPage onBack={() => setView('home')} onBulkAdd={bulkAdd} onViewCart={() => setView('cart')} />}
+      {view === 'home'          && (
         <HomePage
           cart={cart} onAdd={add} onInc={inc} onDec={dec}
           onViewCart={() => setView('cart')}
           onCatClick={openCategory}
           onOpenAiBuddy={() => setAiBuddyOpen(true)}
+          onAllCategories={() => setView('allCategories')}
+          onOrderAgain={() => setView('orderAgain')}
         />
       )}
       {aiBuddyOpen && view === 'home' && (
