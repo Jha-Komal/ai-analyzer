@@ -453,7 +453,7 @@ function AiBuddyPanel({ onClose, onBulkAdd }: {
         <div style={{ background:'linear-gradient(135deg,#0C831F,#43A047)', padding:'13px 14px', borderRadius:'20px 20px 0 0', display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
           <div style={{ width:34, height:34, background:'rgba(255,255,255,0.22)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:19 }}>🤖</div>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:13, fontWeight:800, color:'#fff', lineHeight:1.2 }}>AI Buddy</div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#fff', lineHeight:1.2 }}>Blinki</div>
             <div style={{ fontSize:9, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>● Online · Powered by AI</div>
           </div>
           <button onClick={onClose} style={{ width:26, height:26, borderRadius:'50%', background:'rgba(255,255,255,0.18)', border:'none', cursor:'pointer', color:'#fff', fontSize:13, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
@@ -1120,6 +1120,25 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
   const [search, setSearch]       = useState('');
   const cartQty = Object.values(cart).reduce((s, q) => s + q, 0);
 
+  const BLINKI_DIALOGUES = [
+    "You plan the fun. I'll stock the cart.",
+    "Talk to me. Scrolling is so last year.",
+    "I don't judge. I just cart.",
+  ];
+  const [dialogueIdx, setDialogueIdx] = useState(0);
+  const [dialogueVisible, setDialogueVisible] = useState(true);
+
+  useEffect(() => {
+    const cycle = setInterval(() => {
+      setDialogueVisible(false);
+      setTimeout(() => {
+        setDialogueIdx(i => (i + 1) % BLINKI_DIALOGUES.length);
+        setDialogueVisible(true);
+      }, 400);
+    }, 3200);
+    return () => clearInterval(cycle);
+  }, []);
+
   return (
     <div style={{ width: '100%', height: '100%', background: '#f5f5f5', fontFamily: "'Nunito', system-ui, sans-serif", display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
       <div style={{ height: 44, background: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
@@ -1132,11 +1151,11 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
           <div>
             <div style={{ fontSize: 11, color: '#555', fontWeight: 500 }}>Blinkit in</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 1 }}>
-              <span style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', lineHeight: 1.1 }}>8 minutes</span>
+              <span style={{ fontSize: 17, fontWeight: 800, color: '#1a1a1a', lineHeight: 1.1 }}>8 minutes</span>
               <span style={{ background: '#F8C22C', borderRadius: 6, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: '#000' }}>24/7</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 3 }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>HOME - 3rd floor, 77, Paramount</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>HOME - 3rd floor</span>
               <span style={{ fontSize: 11 }}>▾</span>
             </div>
           </div>
@@ -1150,24 +1169,47 @@ function HomePage({ cart, onAdd, onInc, onDec, onViewCart, onCatClick, onOpenAiB
                 0%,100% { transform: translateY(0); }
                 50%      { transform: translateY(-2px); }
               }
+              @keyframes blinkiDialogueIn {
+                0%   { opacity:0; transform: translateX(4px); }
+                100% { opacity:1; transform: translateX(0);   }
+              }
+              @keyframes blinkiDialogueOut {
+                0%   { opacity:1; }
+                100% { opacity:0; }
+              }
             `}</style>
-            <div style={{ position:'relative', width:34, height:34, flexShrink:0 }}>
-              {/* Pulsing ring 1 — yellow */}
-              <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #F8C22C', animation:'aiBuddyRing 1.6s ease-out infinite', pointerEvents:'none' }} />
-              {/* Pulsing ring 2 — green, offset */}
-              <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #0C831F', animation:'aiBuddyRing 1.6s ease-out 0.8s infinite', pointerEvents:'none' }} />
-              <button onClick={onOpenAiBuddy}
-                title="AI Buddy"
-                style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#F8C22C,#0C831F)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(248,194,44,0.55)', animation:'aiBuddyBob 2s ease-in-out infinite' }}>
-                <span style={{ fontSize:17 }}>🤖</span>
-              </button>
+            <div style={{ position:'relative', flexShrink:0, display:'flex', alignItems:'center', gap:8 }}>
+              {/* Button with rings — bubble is absolute so it doesn't push layout */}
+              <div style={{ position:'relative', width:34, height:34, flexShrink:0 }}>
+                {/* Speech bubble — floats above the button, right-aligned, no layout impact */}
+                <div style={{
+                  position:'absolute', top:'calc(100% + 5px)', right:-40,
+                  background:'#F8C22C', borderRadius:6, padding:'0px 7px 2px',
+                  boxShadow:'0 2px 8px rgba(248,194,44,0.4)',
+                  pointerEvents:'none', whiteSpace:'nowrap',
+                  animation: dialogueVisible ? 'blinkiDialogueIn 0.3s ease forwards' : 'blinkiDialogueOut 0.3s ease forwards',
+                }}>
+                  <span style={{ fontSize:8.5, fontWeight:700, color:'#1a1a1a', lineHeight:1.4 }}>{BLINKI_DIALOGUES[dialogueIdx]}</span>
+                  {/* Tail pointing up toward center of button */}
+                  <div style={{ position:'absolute', top:-5, right:48, width:0, height:0, borderLeft:'5px solid transparent', borderRight:'5px solid transparent', borderBottom:'5px solid #F8C22C' }} />
+                </div>
+                {/* Pulsing ring 1 — yellow */}
+                <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #F8C22C', animation:'aiBuddyRing 1.6s ease-out infinite', pointerEvents:'none' }} />
+                {/* Pulsing ring 2 — green, offset */}
+                <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:'2px solid #0C831F', animation:'aiBuddyRing 1.6s ease-out 0.8s infinite', pointerEvents:'none' }} />
+                <button onClick={onOpenAiBuddy}
+                  title="Blinki"
+                  style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#F8C22C,#0C831F)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(248,194,44,0.55)', animation:'aiBuddyBob 2s ease-in-out infinite' }}>
+                  <span style={{ fontSize:17 }}>🤖</span>
+                </button>
+              </div>
             </div>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 18 }}>👤</span>
             </div>
           </div>
         </div>
-        <div style={{ background: '#f5f5f5', borderRadius: 10, padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: '#f5f5f5', borderRadius: 10, padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 8, marginTop: 15 }}>
           <span style={{ fontSize: 14, color: '#888' }}>🔍</span>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder='Search "bouquet"'
             style={{ border: 'none', outline: 'none', fontSize: 12, color: '#333', background: 'transparent', flex: 1, fontFamily: 'inherit' }} />
